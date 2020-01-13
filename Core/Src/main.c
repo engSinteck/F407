@@ -40,7 +40,7 @@
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-
+uint32_t timer_led = 0;
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -149,6 +149,10 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  // Eventos da GUI LittleVGL
 	  lv_task_handler();
+	  if(HAL_GetTick() - timer_led > 100) {
+		  timer_led = HAL_GetTick();
+		  HAL_GPIO_TogglePin(GPIOA, LED_Pin);
+	  }
   }
   /* USER CODE END 3 */
 }
