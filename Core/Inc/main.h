@@ -60,10 +60,14 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define BT_USER_Pin GPIO_PIN_0
+#define BT_USER_GPIO_Port GPIOA
 #define LED_Pin GPIO_PIN_1
 #define LED_GPIO_Port GPIOA
 #define TFT_DC_Pin GPIO_PIN_5
 #define TFT_DC_GPIO_Port GPIOC
+#define SD_ID_Pin GPIO_PIN_12
+#define SD_ID_GPIO_Port GPIOE
 #define BUZZER_Pin GPIO_PIN_13
 #define BUZZER_GPIO_Port GPIOE
 #define KEY_DN_Pin GPIO_PIN_14
@@ -91,6 +95,9 @@ void Error_Handler(void);
 #define FLASH_MOSI_Pin GPIO_PIN_5
 #define FLASH_MOSI_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
+
+#define TFT_REG      (*((volatile unsigned short *) 0x60000000))
+#define TFT_RAM      (*((volatile unsigned short *) 0x60020000))
 
 /* USER CODE END Private defines */
 
