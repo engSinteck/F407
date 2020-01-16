@@ -95,10 +95,7 @@ void Error_Handler(void);
 #define FLASH_MOSI_Pin GPIO_PIN_5
 #define FLASH_MOSI_GPIO_Port GPIOB
 /* USER CODE BEGIN Private defines */
-
-#define TFT_REG      (*((volatile unsigned short *) 0x60000000))
-#define TFT_RAM      (*((volatile unsigned short *) 0x60020000))
-
+#define	DEBOUNCE_BTN	5
 /* USER CODE END Private defines */
 
 #ifdef __cplusplus

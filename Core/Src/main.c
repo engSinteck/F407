@@ -25,8 +25,12 @@
 
 /* Private includes ----------------------------------------------------------*/
 /* USER CODE BEGIN Includes */
+#include "usbd_cdc_if.h"
 #include "lvgl/lvgl.h"
 #include "lv_fs_if/lv_fs_if.h"
+#include "Sinteck/Driver/Drv_SSD1963.h"
+#include "Sinteck/src/log_cdc.h"
+#include "Sinteck/src/w25qxx.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -85,10 +89,31 @@ static void MX_CRC_Init(void);
 static void MX_RNG_Init(void);
 /* USER CODE BEGIN PFP */
 
+void Mount_FATFS(void);
+uint32_t read_btn_user(void);
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
+extern uint8_t retSD;    /* Return value for SD */
+extern char SDPath[4];   /* SD logical drive path */
+extern FATFS SDFatFS;    /* File system object for SD logical drive */
+extern FIL SDFile;       /* File object for SD */
+
+FATFS *pfs;
+char line[100]; /* Line buffer */
+FRESULT fr;     /* FatFs return code */
+DWORD fre_clust;
+uint32_t totalSpace, freeSpace;
+uint32_t size;
+unsigned int ByteRead;
+
+static lv_disp_buf_t disp_buf;
+static lv_color_t buf[LV_HOR_RES_MAX * 10];		// Declare a buffer for 10 lines
+static lv_color_t buf2[LV_HOR_RES_MAX * 10];	// Declare a buffer for 10 lines
+
+uint32_t Btn_K1_0 = 0;
+uint32_t Btn_K1_1 = 0;
 
 /* USER CODE END 0 */
 
@@ -136,6 +161,32 @@ int main(void)
   MX_RNG_Init();
   /* USER CODE BEGIN 2 */
 
+  logI("STM32F407 SD FatFs - INIT...\n\r");
+  // Init Flash SPI
+  W25qxx_Init();
+  Mount_FATFS();
+
+  // Init SSD1963
+  drv_ssd1963_init();
+  drv_ssd1963_SetBacklight(200);
+
+  lv_disp_buf_init(&disp_buf, buf, buf2, LV_HOR_RES_MAX * 10);    // Initialize the display buffer
+  lv_init();
+
+
+  // Lvgl File System
+   lv_fs_if_init();
+
+   // LVGL Setup
+   lv_disp_drv_t disp_drv;               	// Descriptor of a display driver
+   lv_disp_drv_init(&disp_drv);          	// Basic initialization
+   // SSD1963
+   disp_drv.hor_res = 480;               	// Set the horizontal resolution
+   disp_drv.ver_res = 128;               	// Set the vertical resolution
+   disp_drv.flush_cb = drv_ssd1963_flush;	// Set your driver function
+   disp_drv.buffer = &disp_buf;          	// Assign the buffer to teh display
+   lv_disp_drv_register(&disp_drv);      	// Finally register the driver
+
   /* USER CODE END 2 */
  
  
@@ -149,9 +200,15 @@ int main(void)
     /* USER CODE BEGIN 3 */
 	  // Eventos da GUI LittleVGL
 	  lv_task_handler();
+
+	  // Pisca Led 100ms
 	  if(HAL_GetTick() - timer_led > 100) {
 		  timer_led = HAL_GetTick();
 		  HAL_GPIO_TogglePin(GPIOA, LED_Pin);
+	  }
+	  // Test Button K1
+	  if(!read_btn_user()) {
+		  CDC_Transmit_FS((uint8_t*)"E - Print\n", 14);
 	  }
   }
   /* USER CODE END 3 */
@@ -630,7 +687,7 @@ static void MX_GPIO_Init(void)
   /*Configure GPIO pin : BT_USER_Pin */
   GPIO_InitStruct.Pin = BT_USER_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  GPIO_InitStruct.Pull = GPIO_PULLDOWN;
   HAL_GPIO_Init(BT_USER_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LED_Pin CS_FLASH_Pin */
@@ -735,6 +792,104 @@ static void MX_FSMC_Init(void)
 }
 
 /* USER CODE BEGIN 4 */
+void Mount_FATFS(void)
+{
+	  if(retSD != 0) {
+		 // Erro FATFS
+		 logI("STM32F407 FatFs - ERROR...\n\r");
+	  }
+
+	  if(f_mount(&SDFatFS, "", 0) != FR_OK) {
+		  logI("STM32F407 FatFs - Mount Drive ERROR...\n\r");
+	  }
+	  else {
+		  logI("STM32F407 FatFs - Mount Drive...\n\r");
+	  }
+	  // Check freeSpace space
+	  if(f_getfree("", &fre_clust, &pfs) != FR_OK){
+
+	  }
+
+	  totalSpace = (uint32_t)((pfs->n_fatent - 2) * pfs->csize * 0.5);
+	  freeSpace = (uint32_t)(fre_clust * pfs->csize * 0.5);
+
+	  logI("STM32F407 FatFs - Total Space = %ld Free Space = %ld\n\r",totalSpace , freeSpace);
+
+	  // Test Open config.txt
+	  fr = f_open(&SDFile, "/Config.bin", FA_READ);
+	  if(fr != FR_OK) {
+	 	 logI("STM32F407 FatFs - Config.bin Error...Result: %d\n\r", fr);
+	  }
+	  else {
+	 	 size = f_size(&SDFile);
+	 	 logI("STM32F407 FatFs - Open File Config.bin... Result: %d Size: %d\n\r", fr, size);
+	      fr = f_read(&SDFile, line , size, &ByteRead);
+	      if(fr == FR_OK) {
+	    	     logI("STM32F407 FatFs ReadFile...line: %s\n\r", line);
+	      }
+	      else {
+	     	 logI("STM32F407 FatFs ReadFile...Error:  Result: %d \n\r", fr);
+	      }
+	      f_close(&SDFile);
+	  }
+	  // Test Open Tela_0.bin
+	  fr = f_open(&SDFile, "/Tela_P0.bin", FA_READ);
+	  if(fr != FR_OK) {
+	 	 logI("STM32F407 FatFs - Tela_P0.bin Error...Result: %d\n\r", fr);
+	  }
+	  else {
+	 	 size = f_size(&SDFile);
+	 	 logI("STM32F407 FatFs - Open File Tela_P0.bin... Result: %d  Size:%d\n\r", fr, size);
+	      fr = f_read(&SDFile, line , 100, &ByteRead);
+	      if(fr == FR_OK) {
+	     	 logI("STM32F407 FatFs ReadFile...line: %s\n\r", line);
+	      }
+	      else {
+	     	 logI("STM32F407 FatFs ReadFile...Error:  Result: %d \n\r", fr);
+	      }
+	      f_close(&SDFile);
+	  }
+	  // Test Open File + 8 Caracteres Tela_Principal.bin
+	  fr = f_open(&SDFile, "/Tela_Principal.bin", FA_READ);
+	  if(fr != FR_OK) {
+	 	 logI("STM32F407 FatFs - Tela_Principal.bin Error...Result: %d\n\r", fr);
+	  }
+	  else {
+	 	 size = f_size(&SDFile);
+	 	 logI("STM32F407 FatFs - Open File Tela_Principal.bin... Result: %d  Size:%d\n\r", fr, size);
+	      fr = f_read(&SDFile, line , 100, &ByteRead);
+	      if(fr == FR_OK) {
+	     	 logI("STM32F407 FatFs ReadFile...line: %s\n\r", line);
+	      }
+	      else {
+	     	 logI("STM32F407 FatFs ReadFile...Error:  Result: %d \n\r", fr);
+	      }
+	      f_close(&SDFile);
+	  }
+}
+
+uint32_t read_btn_user(void)
+{
+	uint32_t ret = 0;
+
+	if(HAL_GPIO_ReadPin(BT_USER_GPIO_Port, BT_USER_Pin) == 1) {
+		Btn_K1_0 = 0;
+		Btn_K1_1++;
+		if(Btn_K1_1 > DEBOUNCE_BTN) {
+			Btn_K1_1 = DEBOUNCE_BTN + 1;
+			ret = 1;
+		}
+	}
+	else {
+		Btn_K1_1 = 0;
+		Btn_K1_0++;
+		if(Btn_K1_0 > DEBOUNCE_BTN) {
+			Btn_K1_0 = DEBOUNCE_BTN + 1;
+			ret = 0;
+		}
+	}
+	return ret;
+}
 
 /* USER CODE END 4 */
 
@@ -755,9 +910,9 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-  if (htim->Instance == TIM6) {
-	  lv_tick_inc(1);
-  }
+//  if (htim->Instance == TIM6) {
+//	  lv_tick_inc(1);
+//  }
   /* USER CODE END Callback 1 */
 }
 

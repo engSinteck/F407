@@ -573,6 +573,13 @@ typedef void * lv_obj_user_data_t;
 /*Window (dependencies: lv_cont, lv_btn, lv_label, lv_img, lv_page)*/
 #define LV_USE_WIN      1
 
+/*File system interface*/
+#define LV_USE_FS_IF	1
+#if LV_USE_FS_IF
+	#define LV_FS_IF_FATFS    'F'
+	#define LV_FS_IF_PC       '\0'
+#endif  /*LV_USE_FS_IF*/
+
 /*==================
  * Non-user section
  *==================*/
