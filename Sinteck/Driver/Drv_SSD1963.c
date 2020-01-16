@@ -23,8 +23,8 @@
 /**********************
  *      TYPEDEFS
  **********************/
-#define TFT_CMD              (*((volatile unsigned short *) 0x6F000000)) /* RS = 0 (01101111000000000000000000000000)*/
-#define TFT_DATA             (*((volatile unsigned short *) 0x6F010000)) /* RS = 1 (01101111000000010000000000000000)*/
+#define TFT_CMD              (*((volatile unsigned short *) 0x60000000)) /* RS = 0 (01101111000000000000000000000000)*/
+#define TFT_DATA             (*((volatile unsigned short *) 0x60010000)) /* RS = 1 (01101111000000010000000000000000)*/
 
 /**********************
  *  STATIC PROTOTYPES
@@ -383,9 +383,9 @@ static inline void drv_ssd1963_data_mode(void)
  * Write command
  * @param cmd the command
  */
-static __inline void drv_ssd1963_cmd(uint8_t cmd)
+static inline void drv_ssd1963_cmd(uint8_t cmd)
 {
-//	TFT_CMD = cmd;
+	TFT_CMD = cmd;
 }
 
 /**
@@ -393,9 +393,9 @@ static __inline void drv_ssd1963_cmd(uint8_t cmd)
  * @param data the data
  */
 
-static __inline void drv_ssd1963_data(uint8_t data)
+static inline void drv_ssd1963_data(uint8_t data)
 {
-//	TFT_DATA = data;
+	TFT_DATA = data;
 }
 
 

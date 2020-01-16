@@ -31,6 +31,8 @@
 #include "Sinteck/Driver/Drv_SSD1963.h"
 #include "Sinteck/src/log_cdc.h"
 #include "Sinteck/src/w25qxx.h"
+#include "Sinteck/src/keys.h"
+#include "lv_examples/lv_apps/benchmark/benchmark.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -114,7 +116,7 @@ static lv_color_t buf2[LV_HOR_RES_MAX * 10];	// Declare a buffer for 10 lines
 
 uint32_t Btn_K1_0 = 0;
 uint32_t Btn_K1_1 = 0;
-
+uint32_t timer_key = 0;
 /* USER CODE END 0 */
 
 /**
@@ -164,7 +166,7 @@ int main(void)
   logI("STM32F407 SD FatFs - INIT...\n\r");
   // Init Flash SPI
   W25qxx_Init();
-  Mount_FATFS();
+ // Mount_FATFS();
 
   // Init SSD1963
   drv_ssd1963_init();
@@ -187,6 +189,8 @@ int main(void)
    disp_drv.buffer = &disp_buf;          	// Assign the buffer to teh display
    lv_disp_drv_register(&disp_drv);      	// Finally register the driver
 
+   benchmark_create();
+
   /* USER CODE END 2 */
  
  
@@ -198,6 +202,8 @@ int main(void)
     /* USER CODE END WHILE */
 
     /* USER CODE BEGIN 3 */
+	  // Eventos de Teclado
+	  KeyboardEvent();
 	  // Eventos da GUI LittleVGL
 	  lv_task_handler();
 
@@ -673,16 +679,23 @@ static void MX_GPIO_Init(void)
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(GPIOA, LED_Pin|CS_FLASH_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOC, LED1_Pin|LED2_Pin|LED3_Pin|TFT_DC_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(TFT_DC_GPIO_Port, TFT_DC_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(GPIOA, LED_Pin|CS_FLASH_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(TFT_CS_GPIO_Port, TFT_CS_Pin, GPIO_PIN_SET);
+
+  /*Configure GPIO pins : LED1_Pin LED2_Pin LED3_Pin TFT_DC_Pin */
+  GPIO_InitStruct.Pin = LED1_Pin|LED2_Pin|LED3_Pin|TFT_DC_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
+  GPIO_InitStruct.Pull = GPIO_NOPULL;
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOC, &GPIO_InitStruct);
 
   /*Configure GPIO pin : BT_USER_Pin */
   GPIO_InitStruct.Pin = BT_USER_Pin;
@@ -696,13 +709,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_NOPULL;
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : TFT_DC_Pin */
-  GPIO_InitStruct.Pin = TFT_DC_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(TFT_DC_GPIO_Port, &GPIO_InitStruct);
 
   /*Configure GPIO pin : SD_ID_Pin */
   GPIO_InitStruct.Pin = SD_ID_Pin;
@@ -910,9 +916,16 @@ void HAL_TIM_PeriodElapsedCallback(TIM_HandleTypeDef *htim)
     HAL_IncTick();
   }
   /* USER CODE BEGIN Callback 1 */
-//  if (htim->Instance == TIM6) {
-//	  lv_tick_inc(1);
-//  }
+  if (htim->Instance == TIM6) {
+	  lv_tick_inc(1);
+  }
+  if (htim->Instance == TIM6) {
+	  timer_key++;
+	  if(timer_key >= 30) {
+		  timer_key = 0;
+		  Key_Read();
+	  }
+  }
   /* USER CODE END Callback 1 */
 }
 
