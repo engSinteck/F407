@@ -797,10 +797,10 @@ static void MX_GPIO_Init(void)
   HAL_GPIO_WritePin(GPIOA, LED_Pin|CS_FLASH_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, GPIO_PIN_RESET);
+  HAL_GPIO_WritePin(GPIOB, TFT_RST_Pin|TFT_CS_Pin, GPIO_PIN_SET);
 
   /*Configure GPIO pin Output Level */
-  HAL_GPIO_WritePin(TFT_CS_GPIO_Port, TFT_CS_Pin, GPIO_PIN_SET);
+  HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, GPIO_PIN_RESET);
 
   /*Configure GPIO pins : LED1_Pin LED2_Pin LED3_Pin TFT_DC_Pin */
   GPIO_InitStruct.Pin = LED1_Pin|LED2_Pin|LED3_Pin|TFT_DC_Pin;
@@ -822,11 +822,18 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOA, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : SD_ID_Pin */
-  GPIO_InitStruct.Pin = SD_ID_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  /*Configure GPIO pins : TFT_RST_Pin TFT_CS_Pin */
+  GPIO_InitStruct.Pin = TFT_RST_Pin|TFT_CS_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
   GPIO_InitStruct.Pull = GPIO_NOPULL;
-  HAL_GPIO_Init(SD_ID_GPIO_Port, &GPIO_InitStruct);
+  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
+
+  /*Configure GPIO pins : SD_ID_Pin KEY_DN_Pin KEY_UP_Pin */
+  GPIO_InitStruct.Pin = SD_ID_Pin|KEY_DN_Pin|KEY_UP_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pin : BUZZER_Pin */
   GPIO_InitStruct.Pin = BUZZER_Pin;
@@ -835,24 +842,17 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(BUZZER_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : KEY_DN_Pin KEY_UP_Pin */
-  GPIO_InitStruct.Pin = KEY_DN_Pin|KEY_UP_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
   /*Configure GPIO pins : KEY_ENTER_Pin KEY_ESC_Pin */
   GPIO_InitStruct.Pin = KEY_ENTER_Pin|KEY_ESC_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pin : TFT_CS_Pin */
-  GPIO_InitStruct.Pin = TFT_CS_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
-  GPIO_InitStruct.Pull = GPIO_NOPULL;
-  GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-  HAL_GPIO_Init(TFT_CS_GPIO_Port, &GPIO_InitStruct);
+  /*Configure GPIO pin : TOUCH_IRQ_Pin */
+  GPIO_InitStruct.Pin = TOUCH_IRQ_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(TOUCH_IRQ_GPIO_Port, &GPIO_InitStruct);
 
 }
 
@@ -924,14 +924,14 @@ void Mount_FATFS(void)
 		  logI("STM32F407 FatFs - Mount Drive...\n\r");
 	  }
 	  // Check freeSpace space
-	  if(f_getfree("", &fre_clust, &pfs) != FR_OK){
-
-	  }
-
-	  totalSpace = (uint32_t)((pfs->n_fatent - 2) * pfs->csize * 0.5);
-	  freeSpace = (uint32_t)(fre_clust * pfs->csize * 0.5);
-
-	  logI("STM32F407 FatFs - Total Space = %ld Free Space = %ld\n\r",totalSpace , freeSpace);
+//	  if(f_getfree("", &fre_clust, &pfs) != FR_OK){
+//
+//	  }
+//
+//	  totalSpace = (uint32_t)((pfs->n_fatent - 2) * pfs->csize * 0.5);
+//	  freeSpace = (uint32_t)(fre_clust * pfs->csize * 0.5);
+//
+//	  logI("STM32F407 FatFs - Total Space = %ld Free Space = %ld\n\r",totalSpace , freeSpace);
 
 	  // Test Open config.txt
 	  fr = f_open(&SDFile, "/Config.bin", FA_READ);

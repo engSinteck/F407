@@ -72,6 +72,8 @@ void Error_Handler(void);
 #define LED_GPIO_Port GPIOA
 #define TFT_DC_Pin GPIO_PIN_5
 #define TFT_DC_GPIO_Port GPIOC
+#define TFT_RST_Pin GPIO_PIN_0
+#define TFT_RST_GPIO_Port GPIOB
 #define SD_ID_Pin GPIO_PIN_12
 #define SD_ID_GPIO_Port GPIOE
 #define BUZZER_Pin GPIO_PIN_13
@@ -92,6 +94,8 @@ void Error_Handler(void);
 #define TFT_MISO_GPIO_Port GPIOB
 #define TFT_MOSI_Pin GPIO_PIN_15
 #define TFT_MOSI_GPIO_Port GPIOB
+#define TOUCH_IRQ_Pin GPIO_PIN_10
+#define TOUCH_IRQ_GPIO_Port GPIOD
 #define CS_FLASH_Pin GPIO_PIN_15
 #define CS_FLASH_GPIO_Port GPIOA
 #define FLASH_SCK_Pin GPIO_PIN_3

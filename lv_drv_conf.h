@@ -30,7 +30,7 @@
  *------------*/
 #define LV_DRV_DISP_INCLUDE         <stdint.h>           /*Dummy include by default*/
 #define LV_DRV_DISP_CMD_DATA(val)  /*pin_x_set(val)*/    /*Set the command/data pin to 'val'*/
-#define LV_DRV_DISP_RST(val)       /*pin_x_set(val)*/    /*Set the reset pin to 'val'*/
+#define LV_DRV_DISP_RST(val)       HAL_GPIO_WritePin(TFT_RST_GPIO_Port, TFT_RST_Pin, val)    /*Set the reset pin to 'val'*/
 
 /*---------
  *  SPI
@@ -128,16 +128,16 @@
 #endif
 
 #if USE_SSD1963
-#  define SSD1963_HOR_RES     480		//LV_HOR_RES
-#  define SSD1963_VER_RES     272		//LV_VER_RES
-#  define SSD1963_HT          531
-#  define SSD1963_HPS         43
-#  define SSD1963_LPS         8
-#  define SSD1963_HPW         4
-#  define SSD1963_VT          292
-#  define SSD1963_VPS         12
-#  define SSD1963_FPS         8
-#  define SSD1963_VPW         8
+#  define SSD1963_HOR_RES     LV_HOR_RES
+#  define SSD1963_VER_RES     LV_VER_RES
+#  define SSD1963_HT          1055
+#  define SSD1963_HPS         210
+#  define SSD1963_LPS         0
+#  define SSD1963_HPW         0
+#  define SSD1963_VT          524
+#  define SSD1963_VPS         34
+#  define SSD1963_FPS         0
+#  define SSD1963_VPW         0
 #  define SSD1963_HS_NEG      0   /*Negative hsync*/
 #  define SSD1963_VS_NEG      0   /*Negative vsync*/
 #  define SSD1963_ORI         0   /*0, 90, 180, 270*/
