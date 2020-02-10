@@ -187,7 +187,7 @@ int main(void)
   // Init Flash SPI
   W25qxx_Init();
   // Mount SD-CARD
- //Mount_FATFS();
+ Mount_FATFS();
 
 //tst:
 //
