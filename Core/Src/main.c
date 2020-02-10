@@ -126,6 +126,7 @@ static lv_color_t buf2[LV_HOR_RES_MAX * 10];	// Declare a buffer for 10 lines
 uint32_t Btn_K1_0 = 0;
 uint32_t Btn_K1_1 = 0;
 uint32_t timer_key = 0;
+uint32_t timer_sd = 0;
 //
 uint16_t adcBuffer[4]; // Buffer for store the results of the ADC conversion
 
@@ -170,7 +171,7 @@ int main(void)
   MX_SPI2_Init();
   MX_TIM3_Init();
   MX_USART1_UART_Init();
-  MX_FATFS_Init();
+  //MX_FATFS_Init();
   MX_USB_DEVICE_Init();
   MX_CRC_Init();
   MX_RNG_Init();
@@ -182,7 +183,9 @@ int main(void)
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcBuffer, 4); // Start ADC in DMA
   // Init Flash SPI
   W25qxx_Init();
-//  Mount_FATFS();
+
+  //retSD = BSP_SD_Init();
+  Mount_FATFS();
 
   // Init SSD1963
   drv_ssd1963_init();
@@ -192,8 +195,8 @@ int main(void)
   lv_init();
 
 
-  // Lvgl File System
-//   lv_fs_if_init();
+   // Lvgl File System
+   lv_fs_if_init();
 
    // LVGL Setup
    lv_disp_drv_t disp_drv;               	// Descriptor of a display driver
@@ -890,13 +893,13 @@ static void MX_FSMC_Init(void)
   hsram1.Init.WriteBurst = FSMC_WRITE_BURST_DISABLE;
   hsram1.Init.PageSize = FSMC_PAGE_SIZE_NONE;
   /* Timing */
-  Timing.AddressSetupTime = 15;
-  Timing.AddressHoldTime = 15;
-  Timing.DataSetupTime = 255;
-  Timing.BusTurnAroundDuration = 15;
-  Timing.CLKDivision = 16;
-  Timing.DataLatency = 17;
-  Timing.AccessMode = FSMC_ACCESS_MODE_A;
+  Timing.AddressSetupTime = 2;					// 15
+  Timing.AddressHoldTime = 0;					// 15
+  Timing.DataSetupTime = 5;						// 255
+  Timing.BusTurnAroundDuration = 0;				// 15
+  Timing.CLKDivision = 0;						// 16
+  Timing.DataLatency = 0;						// 17
+  Timing.AccessMode = FSMC_ACCESS_MODE_B;
   /* ExtTiming */
 
   if (HAL_SRAM_Init(&hsram1, &Timing, NULL) != HAL_OK)
@@ -912,9 +915,14 @@ static void MX_FSMC_Init(void)
 /* USER CODE BEGIN 4 */
 void Mount_FATFS(void)
 {
-	  if(retSD != 0) {
+	  MX_FATFS_Init();
+
+	  if( retSD != 0) {
 		 // Erro FATFS
 		 logI("STM32F407 FatFs - ERROR...\n\r");
+	  }
+	  else {
+		  logI("STM32F407 FatFs - OK...\n\r");
 	  }
 
 	  if(f_mount(&SDFatFS, "", 0) != FR_OK) {
@@ -924,14 +932,14 @@ void Mount_FATFS(void)
 		  logI("STM32F407 FatFs - Mount Drive...\n\r");
 	  }
 	  // Check freeSpace space
-//	  if(f_getfree("", &fre_clust, &pfs) != FR_OK){
-//
-//	  }
-//
-//	  totalSpace = (uint32_t)((pfs->n_fatent - 2) * pfs->csize * 0.5);
-//	  freeSpace = (uint32_t)(fre_clust * pfs->csize * 0.5);
-//
-//	  logI("STM32F407 FatFs - Total Space = %ld Free Space = %ld\n\r",totalSpace , freeSpace);
+	  if(f_getfree("", &fre_clust, &pfs) != FR_OK){
+
+	  }
+
+	  totalSpace = (uint32_t)((pfs->n_fatent - 2) * pfs->csize * 0.5);
+	  freeSpace = (uint32_t)(fre_clust * pfs->csize * 0.5);
+
+	  logI("STM32F407 FatFs - Total Space = %ld Free Space = %ld\n\r",totalSpace , freeSpace);
 
 	  // Test Open config.txt
 	  fr = f_open(&SDFile, "/Config.bin", FA_READ);
@@ -950,23 +958,6 @@ void Mount_FATFS(void)
 	      }
 	      f_close(&SDFile);
 	  }
-	  // Test Open Tela_0.bin
-	  fr = f_open(&SDFile, "/Tela_P0.bin", FA_READ);
-	  if(fr != FR_OK) {
-	 	 logI("STM32F407 FatFs - Tela_P0.bin Error...Result: %d\n\r", fr);
-	  }
-	  else {
-	 	 size = f_size(&SDFile);
-	 	 logI("STM32F407 FatFs - Open File Tela_P0.bin... Result: %d  Size:%d\n\r", fr, size);
-	      fr = f_read(&SDFile, line , 100, &ByteRead);
-	      if(fr == FR_OK) {
-	     	 logI("STM32F407 FatFs ReadFile...line: %s\n\r", line);
-	      }
-	      else {
-	     	 logI("STM32F407 FatFs ReadFile...Error:  Result: %d \n\r", fr);
-	      }
-	      f_close(&SDFile);
-	  }
 	  // Test Open File + 8 Caracteres Tela_Principal.bin
 	  fr = f_open(&SDFile, "/Tela_Principal.bin", FA_READ);
 	  if(fr != FR_OK) {
@@ -975,9 +966,12 @@ void Mount_FATFS(void)
 	  else {
 	 	 size = f_size(&SDFile);
 	 	 logI("STM32F407 FatFs - Open File Tela_Principal.bin... Result: %d  Size:%d\n\r", fr, size);
-	      fr = f_read(&SDFile, line , 100, &ByteRead);
-	      if(fr == FR_OK) {
-	     	 logI("STM32F407 FatFs ReadFile...line: %s\n\r", line);
+	 	 timer_sd = HAL_GetTick();
+	 	 fr = f_read(&SDFile, line , 100, &ByteRead);
+	     timer_sd = HAL_GetTick() - timer_sd;
+
+	 	 if(fr == FR_OK) {
+	     	 logI("STM32F407 FatFs ReadFile... Timer: %ld line: %s\n\r", timer_sd, line);
 	      }
 	      else {
 	     	 logI("STM32F407 FatFs ReadFile...Error:  Result: %d \n\r", fr);
