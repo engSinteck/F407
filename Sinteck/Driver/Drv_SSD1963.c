@@ -31,8 +31,8 @@
  **********************/
 static inline void drv_ssd1963_cmd_mode(void);
 static inline void drv_ssd1963_data_mode(void);
-static inline void drv_ssd1963_cmd(uint8_t cmd);
-static inline void drv_ssd1963_data(uint8_t data);
+//static inline void drv_ssd1963_cmd(uint8_t cmd);
+//static inline void drv_ssd1963_data(uint8_t data);
 //static void ssd1963_io_init(void);
 static void drv_ssd1963_reset(void);
 //static void ssd1963_set_clk(void);
@@ -383,7 +383,7 @@ static inline void drv_ssd1963_data_mode(void)
  * Write command
  * @param cmd the command
  */
-static inline void drv_ssd1963_cmd(uint8_t cmd)
+void drv_ssd1963_cmd(uint8_t cmd)
 {
 	*(__IO uint8_t *)(TFT_CMD) = cmd;
 }
@@ -392,7 +392,7 @@ static inline void drv_ssd1963_cmd(uint8_t cmd)
  * Write data
  * @param data the data
  */
-static inline void drv_ssd1963_data(uint8_t data)
+void drv_ssd1963_data(uint8_t data)
 {
 	*(__IO uint8_t *)(TFT_DATA) = data;
 }

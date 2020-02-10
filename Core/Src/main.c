@@ -183,9 +183,20 @@ int main(void)
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcBuffer, 4); // Start ADC in DMA
   // Init Flash SPI
   W25qxx_Init();
-
-  //retSD = BSP_SD_Init();
+  // Mount SD-CARD
   Mount_FATFS();
+
+tst:
+
+  HAL_GPIO_TogglePin(TFT_RST_GPIO_Port, TFT_RST_Pin);
+
+  HAL_Delay(1);
+
+  drv_ssd1963_cmd(0x55);
+  drv_ssd1963_data(0xAA);
+
+  goto tst;
+
 
   // Init SSD1963
   drv_ssd1963_init();
