@@ -24,7 +24,7 @@
  *      TYPEDEFS
  **********************/
 #define TFT_CMD              ((uint32_t)0x60000000) /* RS = 0 */
-#define TFT_DATA             ((uint32_t)0x60020000) /* RS = 1 */
+#define TFT_DATA             ((uint32_t)0x60010000) /* RS = 1 */
 
 /**********************
  *  STATIC PROTOTYPES

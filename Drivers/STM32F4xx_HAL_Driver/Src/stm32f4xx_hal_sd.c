@@ -1805,15 +1805,15 @@ __weak void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
   * @param hsd: Pointer SD handle
   * @retval None
   */
-//__weak void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
-//{
+__weak void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
+{
   /* Prevent unused argument(s) compilation warning */
-//  UNUSED(hsd);
+  UNUSED(hsd);
 
   /* NOTE : This function should not be modified, when the callback is needed,
             the HAL_SD_RxCpltCallback can be implemented in the user file
    */
-//}
+}
 
 /**
   * @brief SD error callbacks

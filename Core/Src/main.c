@@ -37,7 +37,8 @@
 
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
-
+#define BANK1_LCD_C    ((uint32_t)0x60000000)    // Disp Reg  ADDR
+#define BANK1_LCD_D    ((uint32_t)0x60010000)    // Disp Data ADDR
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -171,7 +172,7 @@ int main(void)
   MX_SPI2_Init();
   MX_TIM3_Init();
   MX_USART1_UART_Init();
-  //MX_FATFS_Init();
+  MX_FATFS_Init();
   MX_USB_DEVICE_Init();
   MX_CRC_Init();
   MX_RNG_Init();
@@ -181,22 +182,27 @@ int main(void)
 
   logI("STM32F407 Test....\n\r");
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcBuffer, 4); // Start ADC in DMA
+  HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
+  __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_4, 2048);
   // Init Flash SPI
   W25qxx_Init();
   // Mount SD-CARD
-  Mount_FATFS();
+ //Mount_FATFS();
 
-tst:
-
-  HAL_GPIO_TogglePin(TFT_RST_GPIO_Port, TFT_RST_Pin);
-
-  HAL_Delay(1);
-
-  drv_ssd1963_cmd(0x55);
-  drv_ssd1963_data(0xAA);
-
-  goto tst;
-
+//tst:
+//
+//  //HAL_GPIO_TogglePin(TFT_RST_GPIO_Port, TFT_RST_Pin);
+//
+//  //HAL_Delay(1);
+//
+//*(__IO uint8_t *)(BANK1_LCD_C) = 0x55;
+//*(__IO uint8_t *)(BANK1_LCD_D) = 0xAA;
+//
+//  //drv_ssd1963_cmd(0x55);
+//  //drv_ssd1963_data(0xAA);
+//
+//  goto tst;
+//
 
   // Init SSD1963
   drv_ssd1963_init();
@@ -868,6 +874,28 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Pull = GPIO_PULLUP;
   HAL_GPIO_Init(TOUCH_IRQ_GPIO_Port, &GPIO_InitStruct);
 
+  /*
+  // Teste
+  // Configure GPIO pin : PD0,PD1, PD4,PD5,PD7,PD11, PD14,PD15
+    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_7|GPIO_PIN_11|GPIO_PIN_14|GPIO_PIN_15;
+    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;;
+    GPIO_InitStruct.Pull = GPIO_NOPULL;
+    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
+
+    // Configure GPIO pin : PE7, PE8, PE9, PE10
+       GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10;
+       GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;;
+       GPIO_InitStruct.Pull = GPIO_NOPULL;
+       GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
+       HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
+
+
+       HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5, GPIO_PIN_SET);
+       HAL_GPIO_WritePin(GPIOD, GPIO_PIN_7|GPIO_PIN_11|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_SET);
+
+       HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10, GPIO_PIN_SET);
+*/
 }
 
 /* FSMC initialization function */
@@ -879,6 +907,7 @@ static void MX_FSMC_Init(void)
   /* USER CODE END FSMC_Init 0 */
 
   FSMC_NORSRAM_TimingTypeDef Timing = {0};
+  FSMC_NORSRAM_TimingTypeDef ExtTiming = {0};
 
   /* USER CODE BEGIN FSMC_Init 1 */
 
@@ -899,21 +928,28 @@ static void MX_FSMC_Init(void)
   hsram1.Init.WaitSignalActive = FSMC_WAIT_TIMING_BEFORE_WS;
   hsram1.Init.WriteOperation = FSMC_WRITE_OPERATION_ENABLE;
   hsram1.Init.WaitSignal = FSMC_WAIT_SIGNAL_DISABLE;
-  hsram1.Init.ExtendedMode = FSMC_EXTENDED_MODE_DISABLE;
+  hsram1.Init.ExtendedMode = FSMC_EXTENDED_MODE_ENABLE;
   hsram1.Init.AsynchronousWait = FSMC_ASYNCHRONOUS_WAIT_DISABLE;
   hsram1.Init.WriteBurst = FSMC_WRITE_BURST_DISABLE;
   hsram1.Init.PageSize = FSMC_PAGE_SIZE_NONE;
   /* Timing */
-  Timing.AddressSetupTime = 2;					// 15
-  Timing.AddressHoldTime = 0;					// 15
-  Timing.DataSetupTime = 5;						// 255
-  Timing.BusTurnAroundDuration = 0;				// 15
-  Timing.CLKDivision = 0;						// 16
-  Timing.DataLatency = 0;						// 17
-  Timing.AccessMode = FSMC_ACCESS_MODE_B;
+  Timing.AddressSetupTime = 15;
+  Timing.AddressHoldTime = 15;
+  Timing.DataSetupTime = 254;
+  Timing.BusTurnAroundDuration = 15;
+  Timing.CLKDivision = 16;
+  Timing.DataLatency = 17;
+  Timing.AccessMode = FSMC_ACCESS_MODE_A;
   /* ExtTiming */
+  ExtTiming.AddressSetupTime = 15;
+  ExtTiming.AddressHoldTime = 15;
+  ExtTiming.DataSetupTime = 255;
+  ExtTiming.BusTurnAroundDuration = 15;
+  ExtTiming.CLKDivision = 16;
+  ExtTiming.DataLatency = 17;
+  ExtTiming.AccessMode = FSMC_ACCESS_MODE_A;
 
-  if (HAL_SRAM_Init(&hsram1, &Timing, NULL) != HAL_OK)
+  if (HAL_SRAM_Init(&hsram1, &Timing, &ExtTiming) != HAL_OK)
   {
     Error_Handler( );
   }
