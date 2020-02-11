@@ -53,10 +53,10 @@ uint16_t XPT2046_GetTouch(uint8_t address)
 
     HAL_GPIO_WritePin(XPT2046_CS_GPIO_Port, XPT2046_CS_Pin, GPIO_PIN_SET);
 
-    data = SpiBufferRx[1];
+    data = SpiBufferRx[0];
     data <<= 8;
 
-    data |= SpiBufferRx[2];
+    data |= SpiBufferRx[1];
     data >>= 3;
 
     return data;
