@@ -8,6 +8,7 @@
 
 #include "main.h"
 #include "Sinteck/Driver/Drv_XPT2046.h"
+#include "Sinteck/src/log_cdc.h"
 
 #include "lv_drv_conf.h"
 
@@ -161,6 +162,7 @@ bool XPT2046_read(lv_indev_drv_t * drv, lv_indev_data_t*data)
     }
     else
         data->state = LV_INDEV_STATE_REL;
-   // printf("X=%d  Y= %d  m_sec=%d count=%d\n\r", x, y, millis(), count);
+
+    logI("XPT2046:  X=%d  Y= %d  m_sec=%d \n\r", x, y, HAL_GetTick());
     return false;
 }

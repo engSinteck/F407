@@ -236,8 +236,8 @@ int main(void)
    indev_drv.read_cb = XPT2046_read;
    lv_indev_drv_register(&indev_drv);
 
-   //benchmark_create();
-   sysmon_create();
+   benchmark_create();
+   //sysmon_create();
 
   /* USER CODE END 2 */
  
