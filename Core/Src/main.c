@@ -33,6 +33,7 @@
 #include "Sinteck/src/w25qxx.h"
 #include "Sinteck/src/keys.h"
 #include "lv_examples/lv_apps/benchmark/benchmark.h"
+#include "lv_examples/lv_apps/sysmon/sysmon.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -225,7 +226,8 @@ int main(void)
    disp_drv.buffer = &disp_buf;          	// Assign the buffer to teh display
    lv_disp_drv_register(&disp_drv);      	// Finally register the driver
 
-   benchmark_create();
+   //benchmark_create();
+   sysmon_create();
 
   /* USER CODE END 2 */
  
