@@ -29,9 +29,11 @@
 #include "lvgl/lvgl.h"
 #include "lv_fs_if/lv_fs_if.h"
 #include "Sinteck/Driver/Drv_SSD1963.h"
+#include "Sinteck/Driver/Drv_XPT2046.h"
 #include "Sinteck/src/log_cdc.h"
 #include "Sinteck/src/w25qxx.h"
 #include "Sinteck/src/keys.h"
+#include "lv_drivers/indev/XPT2046.h"
 #include "lv_examples/lv_apps/benchmark/benchmark.h"
 #include "lv_examples/lv_apps/sysmon/sysmon.h"
 /* USER CODE END Includes */
@@ -225,6 +227,14 @@ int main(void)
    disp_drv.flush_cb = drv_ssd1963_flush;	// Set your driver function
    disp_drv.buffer = &disp_buf;          	// Assign the buffer to teh display
    lv_disp_drv_register(&disp_drv);      	// Finally register the driver
+
+   //Initialize the touch pad
+   XPT2046_init();
+   lv_indev_drv_t indev_drv;
+   lv_indev_drv_init(&indev_drv);  //Basic initialization
+   indev_drv.type = LV_INDEV_TYPE_POINTER;
+   indev_drv.read_cb = XPT2046_read;
+   lv_indev_drv_register(&indev_drv);
 
    //benchmark_create();
    sysmon_create();

@@ -57,13 +57,13 @@
  *----------*/
 #define LV_DRV_INDEV_INCLUDE     <stdint.h>             /*Dummy include by default*/
 #define LV_DRV_INDEV_RST(val)    /*pin_x_set(val)*/     /*Set the reset pin to 'val'*/
-#define LV_DRV_INDEV_IRQ_READ    0 /*pn_x_read()*/      /*Read the IRQ pin*/
+#define LV_DRV_INDEV_IRQ_READ    HAL_GPIO_ReadPin(TOUCH_IRQ_GPIO_Port, TOUCH_IRQ_Pin);      /*Read the IRQ pin*/
 
 /*---------
  *  SPI
  *---------*/
-#define LV_DRV_INDEV_SPI_CS(val)            /*spi_cs_set(val)*/     /*Set the SPI's Chip select to 'val'*/
-#define LV_DRV_INDEV_SPI_XCHG_BYTE(data)    0 /*spi_xchg(val)*/     /*Write 'val' to SPI and give the read value*/
+#define LV_DRV_INDEV_SPI_CS(val)            HAL_GPIO_WritePin(GPIOB, TFT_CS_Pin, val);     /*Set the SPI's Chip select to 'val'*/
+#define LV_DRV_INDEV_SPI_XCHG_BYTE(data)    0/*spi_xchg(val)*/     /*Write 'val' to SPI and give the read value*/
 
 /*---------
  *  I2C
@@ -245,12 +245,12 @@
  *    XPT2046
  *--------------*/
 #ifndef USE_XPT2046
-#  define USE_XPT2046         0
+#  define USE_XPT2046         1
 #endif
 
 #if USE_XPT2046
-#  define XPT2046_HOR_RES     480
-#  define XPT2046_VER_RES     320
+#  define XPT2046_HOR_RES     800
+#  define XPT2046_VER_RES     480
 #  define XPT2046_X_MIN       200
 #  define XPT2046_Y_MIN       200
 #  define XPT2046_X_MAX       3800
