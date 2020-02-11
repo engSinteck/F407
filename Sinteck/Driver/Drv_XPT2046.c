@@ -53,11 +53,11 @@ uint16_t XPT2046_GetTouch(uint8_t address)
 
     HAL_GPIO_WritePin(XPT2046_CS_GPIO_Port, XPT2046_CS_Pin, GPIO_PIN_SET);
 
-    data = SpiBufferRx[0];
+    data = SpiBufferRx[1];
     data <<= 8;
 
-    data |= SpiBufferRx[1];
-    data >>= 3;
+    data |= SpiBufferRx[2];
+//    data >>= 3;
 
     return data;
 }
@@ -65,31 +65,26 @@ uint16_t XPT2046_GetTouch(uint8_t address)
 void XPT2046_GetTouch_XY(volatile uint16_t* x_kor, volatile uint16_t* y_kor, uint8_t count_read)
 {
     uint8_t i = 0;
-    uint16_t tmpx, tmpy, touch_x, touch_y = 0;
+    uint16_t tmpx = 0, tmpy = 0, touch_x = 0, touch_y = 0;
 
     touch_x = XPT2046_GetTouch(X);
     //delay_us(100);
     touch_y = XPT2046_GetTouch(Y);
     for (i = 0; i < count_read; i++) {
-    }
     	tmpx = XPT2046_GetTouch(X);
         //delay_us(100);
         tmpy = XPT2046_GetTouch(Y);
 
- //       if (tmpx == 0)  tmpy = 0;
- //       else if (tmpy == 0)  tmpx = 0;
- //       else
- //       {
-//			touch_x = (touch_x + tmpx) / 2;
-//			touch_y = (touch_y + tmpy) / 2;
- //       }
-//
-//	}
-//	*x_kor = touch_x;
-//	*y_kor = touch_y;
-
-        *x_kor = tmpx;
-        *y_kor = tmpy;
+        if (tmpx == 0)  tmpy = 0;
+        else if (tmpy == 0)  tmpx = 0;
+        else
+        {
+			touch_x = (touch_x + tmpx) / 2;
+			touch_y = (touch_y + tmpy) / 2;
+        }
+	}
+	*x_kor = touch_x;
+	*y_kor = touch_y;
 }
 
 void xpt2046_corr(uint16_t * x, uint16_t * y)
@@ -155,9 +150,9 @@ bool XPT2046_read(lv_indev_drv_t * drv, lv_indev_data_t*data)
     static int16_t last_y = 0;
     uint16_t x = 0;
     uint16_t y = 0;
-    uint8_t irq = LV_DRV_INDEV_IRQ_READ;
+    //uint8_t irq = LV_DRV_INDEV_IRQ_READ;
 
-    if (irq == 0) {
+    if (LV_DRV_INDEV_IRQ_READ == 0) {
 
     	HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
 
@@ -182,7 +177,7 @@ bool XPT2046_read(lv_indev_drv_t * drv, lv_indev_data_t*data)
     data->point.x = x;
     data->point.y = y;
 
-    logI("XPT2046:  X: %d   Y: %d\n", x, y);
+    logI("XPT2046:  X: %ld   Y: %ld   State: %d\n", x, y, data->state);
 
     return false;
 }
