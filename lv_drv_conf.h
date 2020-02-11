@@ -130,8 +130,8 @@
 #endif
 
 #if USE_SSD1963
-#  define SSD1963_HOR_RES     LV_HOR_RES
-#  define SSD1963_VER_RES     LV_VER_RES
+#  define SSD1963_HOR_RES     800			//LV_HOR_RES
+#  define SSD1963_VER_RES     480			//LV_VER_RES
 #  define SSD1963_HT          1055
 #  define SSD1963_HPS         210
 #  define SSD1963_LPS         0

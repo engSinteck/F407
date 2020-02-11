@@ -71,22 +71,25 @@ void XPT2046_GetTouch_XY(volatile uint16_t* x_kor, volatile uint16_t* y_kor, uin
     //delay_us(100);
     touch_y = XPT2046_GetTouch(Y);
     for (i = 0; i < count_read; i++) {
-        tmpx = XPT2046_GetTouch(X);
+    }
+    	tmpx = XPT2046_GetTouch(X);
         //delay_us(100);
         tmpy = XPT2046_GetTouch(Y);
 
-        if (tmpx == 0)  tmpy = 0;
-        else if (tmpy == 0)  tmpx = 0;
-    else
-    {
-			touch_x = (touch_x + tmpx) / 2;
-			touch_y = (touch_y + tmpy) / 2;
-    }
+ //       if (tmpx == 0)  tmpy = 0;
+ //       else if (tmpy == 0)  tmpx = 0;
+ //       else
+ //       {
+//			touch_x = (touch_x + tmpx) / 2;
+//			touch_y = (touch_y + tmpy) / 2;
+ //       }
+//
+//	}
+//	*x_kor = touch_x;
+//	*y_kor = touch_y;
 
-	}
-		*x_kor = touch_x;
-		*y_kor = touch_y;
-
+        *x_kor = tmpx;
+        *y_kor = tmpy;
 }
 
 void xpt2046_corr(uint16_t * x, uint16_t * y)
@@ -148,21 +151,35 @@ void xpt2046_avg(uint16_t * x, uint16_t * y)
 
 bool XPT2046_read(lv_indev_drv_t * drv, lv_indev_data_t*data)
 {
+    static int16_t last_x = 0;
+    static int16_t last_y = 0;
     uint16_t x = 0;
     uint16_t y = 0;
     uint8_t irq = LV_DRV_INDEV_IRQ_READ;
 
     if (irq == 0) {
         XPT2046_GetTouch_XY(&x, &y, 1);
+        /*Normalize Data*/
+        x = x >> 3;
+        y = y >> 3;
         xpt2046_corr(&x, &y);
+        xpt2046_avg(&x, &y);
 
-        data->point.x = x;
-        data->point.y = y;
+        last_x = x;
+        last_y = y;
         data->state = LV_INDEV_STATE_PR;
-    }
-    else
-        data->state = LV_INDEV_STATE_REL;
 
-    logI("XPT2046:  X=%d  Y= %d  m_sec=%d \n\r", x, y, HAL_GetTick());
+    } else {
+    	x = last_x;
+    	y = last_y;
+    	avg_last = 0;
+    	data->state = LV_INDEV_STATE_REL;
+    }
+
+    data->point.x = x;
+    data->point.y = y;
+
+    logI("XPT2046:  X: %d   Y: %d\n", x, y);
+
     return false;
 }

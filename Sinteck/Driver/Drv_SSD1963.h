@@ -128,7 +128,7 @@ extern "C" {
  *      TYPEDEFS
  **********************/
 // OFFSET EIXO Y
-#define OFFSET_Y				139
+#define OFFSET_Y				0			// 139 480x128 Sinteck
 
 /**********************
  * GLOBAL PROTOTYPES

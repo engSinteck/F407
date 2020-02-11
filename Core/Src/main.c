@@ -36,6 +36,7 @@
 #include "lv_drivers/indev/XPT2046.h"
 #include "lv_examples/lv_apps/benchmark/benchmark.h"
 #include "lv_examples/lv_apps/sysmon/sysmon.h"
+#include "lv_examples/lv_apps/demo/demo.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -222,8 +223,8 @@ int main(void)
    lv_disp_drv_t disp_drv;               	// Descriptor of a display driver
    lv_disp_drv_init(&disp_drv);          	// Basic initialization
    // SSD1963
-   disp_drv.hor_res = 480;               	// Set the horizontal resolution
-   disp_drv.ver_res = 128;               	// Set the vertical resolution
+   disp_drv.hor_res = 800;               	// Set the horizontal resolution
+   disp_drv.ver_res = 480;               	// Set the vertical resolution
    disp_drv.flush_cb = drv_ssd1963_flush;	// Set your driver function
    disp_drv.buffer = &disp_buf;          	// Assign the buffer to teh display
    lv_disp_drv_register(&disp_drv);      	// Finally register the driver
@@ -236,7 +237,8 @@ int main(void)
    indev_drv.read_cb = XPT2046_read;
    lv_indev_drv_register(&indev_drv);
 
-   benchmark_create();
+   demo_create();
+   //benchmark_create();
    //sysmon_create();
 
   /* USER CODE END 2 */
