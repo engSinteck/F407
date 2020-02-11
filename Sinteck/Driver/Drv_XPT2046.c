@@ -158,6 +158,9 @@ bool XPT2046_read(lv_indev_drv_t * drv, lv_indev_data_t*data)
     uint8_t irq = LV_DRV_INDEV_IRQ_READ;
 
     if (irq == 0) {
+
+    	HAL_GPIO_TogglePin(LED1_GPIO_Port, LED1_Pin);
+
         XPT2046_GetTouch_XY(&x, &y, 1);
         /*Normalize Data*/
         x = x >> 3;

@@ -57,8 +57,8 @@
  *----------*/
 #define LV_DRV_INDEV_INCLUDE     <stdint.h>             /*Dummy include by default*/
 #define LV_DRV_INDEV_RST(val)    /*pin_x_set(val)*/     /*Set the reset pin to 'val'*/
-//#define LV_DRV_INDEV_IRQ_READ    HAL_GPIO_ReadPin(TOUCH_IRQ_GPIO_Port, TOUCH_IRQ_Pin);      /*Read the IRQ pin*/
-#define LV_DRV_INDEV_IRQ_READ		0
+#define LV_DRV_INDEV_IRQ_READ    HAL_GPIO_ReadPin(TOUCH_IRQ_GPIO_Port, TOUCH_IRQ_Pin);      /*Read the IRQ pin*/
+//#define LV_DRV_INDEV_IRQ_READ		0
 
 
 /*---------
@@ -258,7 +258,7 @@
 #  define XPT2046_X_MAX       3800
 #  define XPT2046_Y_MAX       3800
 #  define XPT2046_AVG         4
-#  define XPT2046_INV         0
+#  define XPT2046_INV         1
 #endif
 
 /*-----------------
