@@ -158,8 +158,8 @@ bool XPT2046_read(lv_indev_drv_t * drv, lv_indev_data_t*data)
 
         XPT2046_GetTouch_XY(&x, &y, 1);
         /*Normalize Data*/
-        x = x >> 3;
-        y = y >> 3;
+//        x = x >> 3;
+//        y = y >> 3;
         xpt2046_corr(&x, &y);
         xpt2046_avg(&x, &y);
 
