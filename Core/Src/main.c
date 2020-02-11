@@ -235,7 +235,13 @@ int main(void)
    lv_indev_drv_init(&indev_drv);  //Basic initialization
    indev_drv.type = LV_INDEV_TYPE_POINTER;
    indev_drv.read_cb = XPT2046_read;
-   lv_indev_drv_register(&indev_drv);
+   lv_indev_t * mouse_indev = lv_indev_drv_register(&indev_drv);
+
+   // Mouse Icon
+   LV_IMG_DECLARE(mouse_cursor_icon);                          /*Declare the image file.*/
+   lv_obj_t * cursor_obj =  lv_img_create(lv_scr_act(), NULL); /*Create an image object for the cursor */
+   lv_img_set_src(cursor_obj, &mouse_cursor_icon);             /*Set the image source*/
+   lv_indev_set_cursor(mouse_indev, cursor_obj);               /*Connect the image  object to the driver*/
 
    demo_create();
    //benchmark_create();
@@ -612,7 +618,7 @@ static void MX_SPI2_Init(void)
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi2.Init.NSS = SPI_NSS_SOFT;
-  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_128;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
