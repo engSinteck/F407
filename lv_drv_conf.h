@@ -260,7 +260,7 @@
 #  define XPT2046_AVG         4
 #  define XPT2046_XY_SWAP	  0
 #  define XPT2046_X_INV		  0
-#  define XPT2046_Y_INV       0
+#  define XPT2046_Y_INV       1
 #endif
 
 /*-----------------

@@ -57,7 +57,7 @@ uint16_t XPT2046_GetTouch(uint8_t address)
     data <<= 8;
 
     data |= SpiBufferRx[2];
-//    data >>= 3;
+    data >>= 3;
 
     return data;
 }
@@ -158,8 +158,6 @@ bool XPT2046_read(lv_indev_drv_t * drv, lv_indev_data_t*data)
 
         XPT2046_GetTouch_XY(&x, &y, 1);
         /*Normalize Data*/
-//        x = x >> 3;
-//        y = y >> 3;
         xpt2046_corr(&x, &y);
         xpt2046_avg(&x, &y);
 
@@ -177,7 +175,7 @@ bool XPT2046_read(lv_indev_drv_t * drv, lv_indev_data_t*data)
     data->point.x = x;
     data->point.y = y;
 
-    logI("XPT2046:  X: %ld   Y: %ld   State: %d\n", x, y, data->state);
+    //logI("XPT2046:  X: %ld   Y: %ld   State: %d\n", x, y, data->state);
 
     return false;
 }
