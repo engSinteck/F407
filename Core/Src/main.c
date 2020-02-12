@@ -243,8 +243,8 @@ int main(void)
    lv_img_set_src(cursor_obj, &mouse_cursor_icon);             /*Set the image source*/
    lv_indev_set_cursor(mouse_indev, cursor_obj);               /*Connect the image  object to the driver*/
 
-   demo_create();
-   //benchmark_create();
+   //demo_create();
+   benchmark_create();
    //sysmon_create();
 
   /* USER CODE END 2 */

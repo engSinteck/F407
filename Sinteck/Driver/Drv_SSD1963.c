@@ -203,11 +203,8 @@ void drv_ssd1963_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
     drv_ssd1963_data(0x00FF & (act_y2 + OFFSET_Y));
 
     drv_ssd1963_cmd(0x2c);
-//    int16_t i;
-//    uint16_t full_w = area->x2 - area->x1 + 1;
 
     drv_ssd1963_data_mode();
-    LV_DRV_DISP_PAR_CS(0);
 
 #if LV_COLOR_DEPTH == 16
     uint16_t act_w = act_x2 - act_x1 + 1;
@@ -217,7 +214,7 @@ void drv_ssd1963_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
     }
     LV_DRV_DISP_PAR_CS(1);
 #else
-    uint32_t size = (act_x2 - act_x1 + 1) * (act_y2 - act_y1 + 1);
+    int32_t size = (act_x2 - act_x1 + 1) * (act_y2 - act_y1 + 1);
     for(uint32_t i = 0; i <= size-1; i++) {
     	drv_ssd1963_data(color_p->ch.red); 			// color red
     	drv_ssd1963_data(color_p->ch.green); 		// color green
