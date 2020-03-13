@@ -129,6 +129,8 @@ uint32_t totalSpace, freeSpace;
 uint32_t size;
 unsigned int ByteRead;
 
+uint8_t rData[4096];
+
 static lv_disp_buf_t disp_buf;
 static lv_color_t buf[LV_HOR_RES_MAX * 10];		// Declare a buffer for 10 lines
 static lv_color_t buf2[LV_HOR_RES_MAX * 10];	// Declare a buffer for 10 lines
@@ -137,6 +139,7 @@ uint32_t Btn_K1_0 = 0;
 uint32_t Btn_K1_1 = 0;
 uint32_t timer_key = 0;
 uint32_t timer_sd = 0;
+uint32_t duracao = 0;
 //
 uint16_t adcBuffer[4]; // Buffer for store the results of the ADC conversion
 float tensao, corrente, potencia, setVolts, setAMP;
@@ -196,6 +199,32 @@ int main(void)
   __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_4, 0);
   // Init Flash SPI
   W25qxx_Init();
+  // Teste Velocidade Leitura Flash SPI
+  logI("\r\n\r\n");
+  logI(" W25Q128FV SPI Test Start\n\r");
+
+  duracao = HAL_GetTick();
+  for(uint32_t x = 0; x < 480; x++) {
+	  W25qxx_ReadBytes(rData, 0, 512);
+  }
+
+  duracao = HAL_GetTick() - duracao;
+
+  logI(" W25Q128FV SPI Test End. ( Sector = 512 ) Duracao: %ld\r\n", duracao);
+  logI("\r\n\r\n");
+
+  logI(" W25Q128FV SPI Test Start\n\r");
+
+  duracao = HAL_GetTick();
+  for(uint32_t x = 0; x < 60; x++) {
+	  W25qxx_ReadBytes(rData, 0, 4096);
+  }
+
+  duracao = HAL_GetTick() - duracao;
+
+  logI(" W25Q128FV SPI Test End. ( Sector = 4096 ) Duracao: %ld\r\n", duracao);
+  logI("\r\n\r\n");
+
   // Mount SD-CARD
  //Mount_FATFS();
 
