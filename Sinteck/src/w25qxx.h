@@ -21,6 +21,8 @@ extern SPI_HandleTypeDef hspi1;
 #define		_W25QXX_HOLD_PIN			FLASH_HOLD_Pin
 #define		_W25QXX_USE_FREERTOS		0
 #define		_W25QXX_DEBUG				1
+#define		_W25QXX_DMA					0
+#define		_W25QXX_IRQ					0
 
 #ifdef __cplusplus
  extern "C" {

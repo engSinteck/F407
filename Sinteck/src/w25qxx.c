@@ -832,7 +832,15 @@ void W25qxx_ReadBytes(uint8_t* pBuffer, uint32_t ReadAddr, uint32_t NumByteToRea
     W25qxx_Spi(ReadAddr & 0xFF);
 	W25qxx_Spi(0);
 
+#if (_W25QXX_IRQ==1)
+	HAL_SPI_Receive_DMA(&_W25QXX_SPI, pBuffer, NumByteToRead);
+	while (HAL_SPI_GetState(&_W25QXX_SPI) != HAL_SPI_STATE_READY)
+	{
+	}
+#else
 	HAL_SPI_Receive(&_W25QXX_SPI,pBuffer,NumByteToRead,2000);
+#endif
+
 	HAL_GPIO_WritePin(_W25QXX_CS_GPIO,_W25QXX_CS_PIN,GPIO_PIN_SET);
 
 	#if (_W25QXX_DEBUG==1)
