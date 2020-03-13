@@ -8,6 +8,8 @@
  *********************/
 #include <Driver/Drv_SSD1963.h>
 #include "main.h"
+#include "Sinteck/src/log_cdc.h"
+
 #if USE_SSD1963
 
 #include <stdbool.h>
@@ -139,20 +141,18 @@ void drv_ssd1963_init(void)
     drv_ssd1963_data((SSD1963_HOR_RES - 1) >> 8);		//SET end page address
     drv_ssd1963_data((SSD1963_HOR_RES - 1) & 0xFF);
 
-    drv_ssd1963_cmd(0x2b);			//SET column address
+    drv_ssd1963_cmd(0x2b);				//SET column address
     drv_ssd1963_data(0x00);				//SET start column address
     drv_ssd1963_data(0x00);
     drv_ssd1963_data((SSD1963_VER_RES - 1) >> 8);		//SET end column address
     drv_ssd1963_data((SSD1963_VER_RES - 1) & 0xFF);
 
     drv_ssd1963_cmd(0x2c);
-    for (uint16_t x=0; x < SSD1963_HOR_RES; x++)
+    for (int16_t x=0; x < SSD1963_HOR_RES; x++)
     {
-      for (uint16_t y= 0; y < SSD1963_VER_RES; y++)
+      for (int16_t y= 0; y < SSD1963_VER_RES; y++)
       {
-    	  drv_ssd1963_data((0x000000)>>16); 		// color is red
-    	  drv_ssd1963_data((0x000000)>>8);  		// color is green
-    	  drv_ssd1963_data(0x000000);  		 		// color is blue
+    	  drv_ssd1963_data(0x000000); 		// color is red
       }
     }
 
@@ -207,15 +207,15 @@ void drv_ssd1963_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
     drv_ssd1963_data_mode();
 
 #if LV_COLOR_DEPTH == 16
-    uint16_t act_w = act_x2 - act_x1 + 1;
-    for(i = act_y1; i <= act_y2; i++) {
+    int32_t full_w = area->x2 - area->x1 + 1;
+    for(int32_t i = act_y1; i <= act_y2; i++) {
         LV_DRV_DISP_PAR_WR_ARRAY((uint16_t *)color_p, act_w);
         color_p += full_w;
     }
     LV_DRV_DISP_PAR_CS(1);
 #else
     int32_t size = (act_x2 - act_x1 + 1) * (act_y2 - act_y1 + 1);
-    for(uint32_t i = 0; i <= size-1; i++) {
+    for(int32_t i = 0; i <= size-1; i++) {
     	drv_ssd1963_data(color_p->ch.red); 			// color red
     	drv_ssd1963_data(color_p->ch.green); 		// color green
     	drv_ssd1963_data(color_p->ch.blue); 		// color blue
@@ -259,8 +259,8 @@ void ssd1963_fill(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t *
     drv_ssd1963_data_mode();
 
     //uint16_t color16 = lv_color_to16(color);
-    uint32_t size = (act_x2 - act_x1 + 1) * (act_y2 - act_y1 + 1);
-    uint32_t i;
+    int32_t size = (act_x2 - act_x1 + 1) * (act_y2 - act_y1 + 1);
+    int32_t i;
     for(i = 0; i < size-1; i++) {
     	drv_ssd1963_data(color_p->ch.red); 			// color red
     	drv_ssd1963_data(color_p->ch.green); 		// color green
@@ -298,21 +298,19 @@ void drv_ssd1963_map(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
     drv_ssd1963_data(0x00FF & (act_y2 + OFFSET_Y));
 
     drv_ssd1963_cmd(0x2c);
-    int16_t i;
-    uint16_t full_w = area->x2 - area->x1 + 1;
 
     LV_DRV_DISP_PAR_CS(0);
     drv_ssd1963_data_mode();
 
 #if LV_COLOR_DEPTH == 16
-    uint16_t act_w = act_x2 - act_x1 + 1;
-    for(i = act_y1; i <= act_y2; i++) {
+    int32_t full_w = area->x2 - area->x1 + 1;
+    for(int32_t i = act_y1; i <= act_y2; i++) {
         LV_DRV_DISP_PAR_WR_ARRAY((uint16_t *)color_p, act_w);
         color_p += full_w;
     }
     LV_DRV_DISP_PAR_CS(1);
 #else
-    int16_t j;
+    int32_t j;
     for(i = act_y1; i <= act_y2; i++) {
         for(j = 0; j <= act_x2 - act_x1 + 1; j++) {
             LV_DRV_DISP_PAR_WR_WORD(color_p[j]);
@@ -380,20 +378,19 @@ static inline void drv_ssd1963_data_mode(void)
  * Write command
  * @param cmd the command
  */
-void drv_ssd1963_cmd(uint8_t cmd)
+void drv_ssd1963_cmd(uint16_t cmd)
 {
-	*(__IO uint8_t *)(TFT_CMD) = cmd;
+	*(__IO uint16_t *)(TFT_CMD) = cmd;
 }
 
 /**
  * Write data
  * @param data the data
  */
-void drv_ssd1963_data(uint8_t data)
+void drv_ssd1963_data(uint16_t data)
 {
-	*(__IO uint8_t *)(TFT_DATA) = data;
+	*(__IO uint16_t *)(TFT_DATA) = data;
 }
-
 
 void drv_ssd1963_SetBacklight(uint8_t intensity)
 {
@@ -406,6 +403,11 @@ void drv_ssd1963_SetBacklight(uint8_t intensity)
 	drv_ssd1963_data(0x00);
 	drv_ssd1963_data(0x00);
 	drv_ssd1963_data(0x00);
+}
+
+void my_monitor_cb(lv_disp_drv_t * disp_drv, uint32_t time, uint32_t px)
+{
+  logI("Debug: %d px refreshed in %d ms\n", px, time);
 }
 
 

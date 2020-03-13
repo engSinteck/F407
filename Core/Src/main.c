@@ -37,6 +37,9 @@
 #include "lv_examples/lv_apps/benchmark/benchmark.h"
 #include "lv_examples/lv_apps/sysmon/sysmon.h"
 #include "lv_examples/lv_apps/demo/demo.h"
+#include "lv_examples/lv_apps/tpcal/tpcal.h"
+
+#include "Sinteck/GUI/Screen_Main.h"
 /* USER CODE END Includes */
 
 /* Private typedef -----------------------------------------------------------*/
@@ -73,6 +76,7 @@ DMA_HandleTypeDef hdma_sdio_tx;
 
 SPI_HandleTypeDef hspi1;
 SPI_HandleTypeDef hspi2;
+DMA_HandleTypeDef hdma_spi1_rx;
 
 TIM_HandleTypeDef htim3;
 
@@ -80,6 +84,7 @@ UART_HandleTypeDef huart1;
 UART_HandleTypeDef huart3;
 UART_HandleTypeDef huart6;
 
+DMA_HandleTypeDef hdma_memtomem_dma2_stream1;
 SRAM_HandleTypeDef hsram1;
 
 /* USER CODE BEGIN PV */
@@ -134,6 +139,7 @@ uint32_t timer_key = 0;
 uint32_t timer_sd = 0;
 //
 uint16_t adcBuffer[4]; // Buffer for store the results of the ADC conversion
+float tensao, corrente, potencia, setVolts, setAMP;
 
 /* USER CODE END 0 */
 
@@ -187,11 +193,11 @@ int main(void)
   logI("STM32F407 Test....\n\r");
   HAL_ADC_Start_DMA(&hadc1, (uint32_t*)adcBuffer, 4); // Start ADC in DMA
   HAL_TIM_PWM_Start(&htim3, TIM_CHANNEL_4);
-  __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_4, 2048);
+  __HAL_TIM_SetCompare(&htim3, TIM_CHANNEL_4, 0);
   // Init Flash SPI
   W25qxx_Init();
   // Mount SD-CARD
- Mount_FATFS();
+ //Mount_FATFS();
 
 //tst:
 //
@@ -214,7 +220,6 @@ int main(void)
 
   lv_disp_buf_init(&disp_buf, buf, buf2, LV_HOR_RES_MAX * 10);    // Initialize the display buffer
   lv_init();
-
 
    // Lvgl File System
    lv_fs_if_init();
@@ -244,8 +249,10 @@ int main(void)
    lv_indev_set_cursor(mouse_indev, cursor_obj);               /*Connect the image  object to the driver*/
 
    //demo_create();
-   benchmark_create();
+   //benchmark_create();
    //sysmon_create();
+   GUI_PowerSupply();
+   //tpcal_create();
 
   /* USER CODE END 2 */
  
@@ -277,7 +284,7 @@ int main(void)
 	  if(HAL_GetTick() - timer_adc > 500) {
 		  timer_adc = HAL_GetTick();
 		  logI("ADC1: %ld, ADC2: %ld, ADC3: %ld, ADC4: %ld\n",
-				adcBuffer[0], adcBuffer[1], adcBuffer[2], adcBuffer[3]);
+				  adcBuffer[0], adcBuffer[1], adcBuffer[2], adcBuffer[3]);
 	  }
   }
   /* USER CODE END 3 */
@@ -381,23 +388,21 @@ static void MX_ADC1_Init(void)
   */
   sConfig.Channel = ADC_CHANNEL_3;
   sConfig.Rank = 2;
-  sConfig.SamplingTime = ADC_SAMPLETIME_3CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
   /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
   */
-  sConfig.Channel = ADC_CHANNEL_TEMPSENSOR;
+  sConfig.Channel = ADC_CHANNEL_4;
   sConfig.Rank = 3;
-  sConfig.SamplingTime = ADC_SAMPLETIME_480CYCLES;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
     Error_Handler();
   }
   /** Configure for the selected ADC regular channel its corresponding rank in the sequencer and its sample time. 
   */
-  sConfig.Channel = ADC_CHANNEL_VBAT;
+  sConfig.Channel = ADC_CHANNEL_5;
   sConfig.Rank = 4;
   if (HAL_ADC_ConfigChannel(&hadc1, &sConfig) != HAL_OK)
   {
@@ -618,7 +623,7 @@ static void MX_SPI2_Init(void)
   hspi2.Init.CLKPolarity = SPI_POLARITY_LOW;
   hspi2.Init.CLKPhase = SPI_PHASE_1EDGE;
   hspi2.Init.NSS = SPI_NSS_SOFT;
-  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_256;
+  hspi2.Init.BaudRatePrescaler = SPI_BAUDRATEPRESCALER_2;
   hspi2.Init.FirstBit = SPI_FIRSTBIT_MSB;
   hspi2.Init.TIMode = SPI_TIMODE_DISABLE;
   hspi2.Init.CRCCalculation = SPI_CRCCALCULATION_DISABLE;
@@ -793,6 +798,8 @@ static void MX_USART6_UART_Init(void)
 
 /** 
   * Enable DMA controller clock
+  * Configure DMA for memory to memory transfers
+  *   hdma_memtomem_dma2_stream1
   */
 static void MX_DMA_Init(void) 
 {
@@ -800,10 +807,32 @@ static void MX_DMA_Init(void)
   /* DMA controller clock enable */
   __HAL_RCC_DMA2_CLK_ENABLE();
 
+  /* Configure DMA request hdma_memtomem_dma2_stream1 on DMA2_Stream1 */
+  hdma_memtomem_dma2_stream1.Instance = DMA2_Stream1;
+  hdma_memtomem_dma2_stream1.Init.Channel = DMA_CHANNEL_0;
+  hdma_memtomem_dma2_stream1.Init.Direction = DMA_MEMORY_TO_MEMORY;
+  hdma_memtomem_dma2_stream1.Init.PeriphInc = DMA_PINC_ENABLE;
+  hdma_memtomem_dma2_stream1.Init.MemInc = DMA_MINC_ENABLE;
+  hdma_memtomem_dma2_stream1.Init.PeriphDataAlignment = DMA_PDATAALIGN_BYTE;
+  hdma_memtomem_dma2_stream1.Init.MemDataAlignment = DMA_MDATAALIGN_BYTE;
+  hdma_memtomem_dma2_stream1.Init.Mode = DMA_NORMAL;
+  hdma_memtomem_dma2_stream1.Init.Priority = DMA_PRIORITY_LOW;
+  hdma_memtomem_dma2_stream1.Init.FIFOMode = DMA_FIFOMODE_ENABLE;
+  hdma_memtomem_dma2_stream1.Init.FIFOThreshold = DMA_FIFO_THRESHOLD_FULL;
+  hdma_memtomem_dma2_stream1.Init.MemBurst = DMA_MBURST_SINGLE;
+  hdma_memtomem_dma2_stream1.Init.PeriphBurst = DMA_PBURST_SINGLE;
+  if (HAL_DMA_Init(&hdma_memtomem_dma2_stream1) != HAL_OK)
+  {
+    Error_Handler( );
+  }
+
   /* DMA interrupt init */
   /* DMA2_Stream0_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream0_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream0_IRQn);
+  /* DMA2_Stream2_IRQn interrupt configuration */
+  HAL_NVIC_SetPriority(DMA2_Stream2_IRQn, 0, 0);
+  HAL_NVIC_EnableIRQ(DMA2_Stream2_IRQn);
   /* DMA2_Stream3_IRQn interrupt configuration */
   HAL_NVIC_SetPriority(DMA2_Stream3_IRQn, 0, 0);
   HAL_NVIC_EnableIRQ(DMA2_Stream3_IRQn);
@@ -823,11 +852,11 @@ static void MX_GPIO_Init(void)
   GPIO_InitTypeDef GPIO_InitStruct = {0};
 
   /* GPIO Ports Clock Enable */
+  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOC_CLK_ENABLE();
   __HAL_RCC_GPIOH_CLK_ENABLE();
   __HAL_RCC_GPIOA_CLK_ENABLE();
   __HAL_RCC_GPIOB_CLK_ENABLE();
-  __HAL_RCC_GPIOE_CLK_ENABLE();
   __HAL_RCC_GPIOD_CLK_ENABLE();
 
   /*Configure GPIO pin Output Level */
@@ -841,6 +870,14 @@ static void MX_GPIO_Init(void)
 
   /*Configure GPIO pin Output Level */
   HAL_GPIO_WritePin(BUZZER_GPIO_Port, BUZZER_Pin, GPIO_PIN_RESET);
+
+  /*Configure GPIO pins : KEY_UP_Pin KEY_DN_Pin KEY_ENTER_Pin KEY_ESC_Pin 
+                           SD_PRESENT_Pin TOUCH_IRQ_Pin */
+  GPIO_InitStruct.Pin = KEY_UP_Pin|KEY_DN_Pin|KEY_ENTER_Pin|KEY_ESC_Pin 
+                          |SD_PRESENT_Pin|TOUCH_IRQ_Pin;
+  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
+  GPIO_InitStruct.Pull = GPIO_PULLUP;
+  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
 
   /*Configure GPIO pins : LED1_Pin LED2_Pin LED3_Pin TFT_DC_Pin */
   GPIO_InitStruct.Pin = LED1_Pin|LED2_Pin|LED3_Pin|TFT_DC_Pin;
@@ -869,12 +906,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : SD_ID_Pin KEY_DN_Pin KEY_UP_Pin */
-  GPIO_InitStruct.Pin = SD_ID_Pin|KEY_DN_Pin|KEY_UP_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
   /*Configure GPIO pin : BUZZER_Pin */
   GPIO_InitStruct.Pin = BUZZER_Pin;
   GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;
@@ -882,40 +913,6 @@ static void MX_GPIO_Init(void)
   GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
   HAL_GPIO_Init(BUZZER_GPIO_Port, &GPIO_InitStruct);
 
-  /*Configure GPIO pins : KEY_ENTER_Pin KEY_ESC_Pin */
-  GPIO_InitStruct.Pin = KEY_ENTER_Pin|KEY_ESC_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_INPUT;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(GPIOB, &GPIO_InitStruct);
-
-  /*Configure GPIO pin : TOUCH_IRQ_Pin */
-  GPIO_InitStruct.Pin = TOUCH_IRQ_Pin;
-  GPIO_InitStruct.Mode = GPIO_MODE_IT_RISING;
-  GPIO_InitStruct.Pull = GPIO_PULLUP;
-  HAL_GPIO_Init(TOUCH_IRQ_GPIO_Port, &GPIO_InitStruct);
-
-  /*
-  // Teste
-  // Configure GPIO pin : PD0,PD1, PD4,PD5,PD7,PD11, PD14,PD15
-    GPIO_InitStruct.Pin = GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5|GPIO_PIN_7|GPIO_PIN_11|GPIO_PIN_14|GPIO_PIN_15;
-    GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;;
-    GPIO_InitStruct.Pull = GPIO_NOPULL;
-    GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-    HAL_GPIO_Init(GPIOD, &GPIO_InitStruct);
-
-    // Configure GPIO pin : PE7, PE8, PE9, PE10
-       GPIO_InitStruct.Pin = GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10;
-       GPIO_InitStruct.Mode = GPIO_MODE_OUTPUT_PP;;
-       GPIO_InitStruct.Pull = GPIO_NOPULL;
-       GPIO_InitStruct.Speed = GPIO_SPEED_FREQ_LOW;
-       HAL_GPIO_Init(GPIOE, &GPIO_InitStruct);
-
-
-       HAL_GPIO_WritePin(GPIOD, GPIO_PIN_0|GPIO_PIN_1|GPIO_PIN_4|GPIO_PIN_5, GPIO_PIN_SET);
-       HAL_GPIO_WritePin(GPIOD, GPIO_PIN_7|GPIO_PIN_11|GPIO_PIN_14|GPIO_PIN_15, GPIO_PIN_SET);
-
-       HAL_GPIO_WritePin(GPIOE, GPIO_PIN_7|GPIO_PIN_8|GPIO_PIN_9|GPIO_PIN_10, GPIO_PIN_SET);
-*/
 }
 
 /* FSMC initialization function */
@@ -941,7 +938,7 @@ static void MX_FSMC_Init(void)
   hsram1.Init.NSBank = FSMC_NORSRAM_BANK1;
   hsram1.Init.DataAddressMux = FSMC_DATA_ADDRESS_MUX_DISABLE;
   hsram1.Init.MemoryType = FSMC_MEMORY_TYPE_SRAM;
-  hsram1.Init.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_8;
+  hsram1.Init.MemoryDataWidth = FSMC_NORSRAM_MEM_BUS_WIDTH_16;
   hsram1.Init.BurstAccessMode = FSMC_BURST_ACCESS_MODE_DISABLE;
   hsram1.Init.WaitSignalPolarity = FSMC_WAIT_SIGNAL_POLARITY_LOW;
   hsram1.Init.WrapMode = FSMC_WRAP_MODE_DISABLE;

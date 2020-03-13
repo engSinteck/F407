@@ -60,6 +60,16 @@ void Error_Handler(void);
 /* USER CODE END EFP */
 
 /* Private defines -----------------------------------------------------------*/
+#define KEY_UP_Pin GPIO_PIN_2
+#define KEY_UP_GPIO_Port GPIOE
+#define KEY_DN_Pin GPIO_PIN_3
+#define KEY_DN_GPIO_Port GPIOE
+#define KEY_ENTER_Pin GPIO_PIN_4
+#define KEY_ENTER_GPIO_Port GPIOE
+#define KEY_ESC_Pin GPIO_PIN_5
+#define KEY_ESC_GPIO_Port GPIOE
+#define SD_PRESENT_Pin GPIO_PIN_6
+#define SD_PRESENT_GPIO_Port GPIOE
 #define LED1_Pin GPIO_PIN_0
 #define LED1_GPIO_Port GPIOC
 #define LED2_Pin GPIO_PIN_1
@@ -74,18 +84,6 @@ void Error_Handler(void);
 #define TFT_DC_GPIO_Port GPIOC
 #define TFT_RST_Pin GPIO_PIN_0
 #define TFT_RST_GPIO_Port GPIOB
-#define SD_ID_Pin GPIO_PIN_12
-#define SD_ID_GPIO_Port GPIOE
-#define BUZZER_Pin GPIO_PIN_13
-#define BUZZER_GPIO_Port GPIOE
-#define KEY_DN_Pin GPIO_PIN_14
-#define KEY_DN_GPIO_Port GPIOE
-#define KEY_UP_Pin GPIO_PIN_15
-#define KEY_UP_GPIO_Port GPIOE
-#define KEY_ENTER_Pin GPIO_PIN_10
-#define KEY_ENTER_GPIO_Port GPIOB
-#define KEY_ESC_Pin GPIO_PIN_11
-#define KEY_ESC_GPIO_Port GPIOB
 #define TFT_CS_Pin GPIO_PIN_12
 #define TFT_CS_GPIO_Port GPIOB
 #define TFT_SCK_Pin GPIO_PIN_13
@@ -94,8 +92,6 @@ void Error_Handler(void);
 #define TFT_MISO_GPIO_Port GPIOB
 #define TFT_MOSI_Pin GPIO_PIN_15
 #define TFT_MOSI_GPIO_Port GPIOB
-#define TOUCH_IRQ_Pin GPIO_PIN_10
-#define TOUCH_IRQ_GPIO_Port GPIOD
 #define CS_FLASH_Pin GPIO_PIN_15
 #define CS_FLASH_GPIO_Port GPIOA
 #define FLASH_SCK_Pin GPIO_PIN_3
@@ -104,6 +100,10 @@ void Error_Handler(void);
 #define FLASH_MISO_GPIO_Port GPIOB
 #define FLASH_MOSI_Pin GPIO_PIN_5
 #define FLASH_MOSI_GPIO_Port GPIOB
+#define BUZZER_Pin GPIO_PIN_0
+#define BUZZER_GPIO_Port GPIOE
+#define TOUCH_IRQ_Pin GPIO_PIN_1
+#define TOUCH_IRQ_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
 #define	DEBOUNCE_BTN	5
 /* USER CODE END Private defines */
