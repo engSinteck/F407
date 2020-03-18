@@ -154,7 +154,6 @@ int main(void)
   MX_SPI2_Init();
   MX_TIM3_Init();
   MX_USART1_UART_Init();
-  MX_FATFS_Init();
   MX_USB_DEVICE_Init();
   MX_CRC_Init();
   MX_RNG_Init();
