@@ -6,7 +6,7 @@
 /*********************
  *      INCLUDES
  *********************/
-#include <Driver/Drv_SSD1963.h>
+#include "Sinteck/Driver/Drv_SSD1963.h"
 #include "main.h"
 #include "Sinteck/src/log_cdc.h"
 
@@ -407,8 +407,7 @@ void drv_ssd1963_SetBacklight(uint8_t intensity)
 
 void my_monitor_cb(lv_disp_drv_t * disp_drv, uint32_t time, uint32_t px)
 {
-  logI("Debug: %d px refreshed in %d ms\n", px, time);
+	logI("Debug: %d px refreshed in %d ms\n", px, time);
 }
-
 
 #endif

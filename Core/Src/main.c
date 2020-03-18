@@ -173,10 +173,7 @@ int main(void)
   logI(" W25Q128FV SPI Test Start\n\r");
 
   duracao = HAL_GetTick();
-  for(uint32_t x = 0; x < 480; x++) {
-	  W25qxx_ReadBytes(rData, 0, 512);
-  }
-
+  W25qxx_ReadBytes(rData, 0, 512);
   duracao = HAL_GetTick() - duracao;
 
   logI(" W25Q128FV SPI Test End. ( Sector = 512 ) Duracao: %ld\r\n", duracao);
@@ -185,10 +182,7 @@ int main(void)
   logI(" W25Q128FV SPI Test Start\n\r");
 
   duracao = HAL_GetTick();
-  for(uint32_t x = 0; x < 60; x++) {
-	  W25qxx_ReadBytes(rData, 0, 4096);
-  }
-
+  W25qxx_ReadBytes(rData, 0, 4096);
   duracao = HAL_GetTick() - duracao;
 
   logI(" W25Q128FV SPI Test End. ( Sector = 4096 ) Duracao: %ld\r\n", duracao);
@@ -357,13 +351,12 @@ void Mount_FATFS(void)
 	  }
 	  // Check freeSpace space
 	  if(f_getfree("", &fre_clust, &pfs) != FR_OK){
-
 	  }
 
-	  totalSpace = (uint32_t)((pfs->n_fatent - 2) * pfs->csize * 0.5);
-	  freeSpace = (uint32_t)(fre_clust * pfs->csize * 0.5);
+	  totalSpace = (uint32_t)((pfs->n_fatent - 2) * pfs->csize);
+	  freeSpace = (uint32_t)(fre_clust * pfs->csize);
 
-	  logI("STM32F407 FatFs - Total Space = %ld Free Space = %ld\n\r",totalSpace , freeSpace);
+	  logI("STM32F407 FatFs - %10lu KiB total drive space. %10lu KiB available.\n", totalSpace / 2, freeSpace / 2);
 
 	  // Test Open config.txt
 	  fr = f_open(&SDFile, "/Config.bin", FA_READ);
@@ -383,6 +376,7 @@ void Mount_FATFS(void)
 	      f_close(&SDFile);
 	  }
 	  // Test Open File + 8 Caracteres Tela_Principal.bin
+	  duracao = HAL_GetTick();
 	  fr = f_open(&SDFile, "/Tela_Principal.bin", FA_READ);
 	  if(fr != FR_OK) {
 	 	 logI("STM32F407 FatFs - Tela_Principal.bin Error...Result: %d\n\r", fr);
@@ -400,6 +394,8 @@ void Mount_FATFS(void)
 	      else {
 	     	 logI("STM32F407 FatFs ReadFile...Error:  Result: %d \n\r", fr);
 	      }
+	 	  duracao = HAL_GetTick() - duracao;
+	 	  logI("STM32F407 FatFs ReadFile Duracao:  Result: %ld \n\r", duracao);
 	      f_close(&SDFile);
 	  }
 }
