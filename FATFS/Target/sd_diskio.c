@@ -18,17 +18,18 @@
   */
 /* USER CODE END Header */
 
-/* Note: code generation based on sd_diskio_dma_template.c v2.1.1 as "Use dma template" is enabled. */
+/* Note: code generation based on sd_diskio_dma_template_bspv1.c v2.1.4 
+   as "Use dma template" is enabled. */
 
 /* USER CODE BEGIN firstSection */
 /* can be used to modify / undefine following code or add new definitions */
 /* USER CODE END firstSection*/
 
 /* Includes ------------------------------------------------------------------*/
-#include <string.h>
-
 #include "ff_gen_drv.h"
 #include "sd_diskio.h"
+
+#include <string.h>
 
 /* Private typedef -----------------------------------------------------------*/
 /* Private define ------------------------------------------------------------*/
@@ -67,17 +68,18 @@
 * in FatFs some accesses aren't thus we need a 4-byte aligned scratch buffer to correctly
 * transfer data
 */
-#define ENABLE_SCRATCH_BUFFER
+/* USER CODE BEGIN enableScratchBuffer */
+/* #define ENABLE_SCRATCH_BUFFER */
+/* USER CODE END enableScratchBuffer */
 
 /* Private variables ---------------------------------------------------------*/
 #if defined(ENABLE_SCRATCH_BUFFER)
-#if defined (ENABLE_SD_DMA_CACHE_MAINTENANCE)  
+#if defined (ENABLE_SD_DMA_CACHE_MAINTENANCE)
 ALIGN_32BYTES(static uint8_t scratch[BLOCKSIZE]); // 32-Byte aligned for cache maintenance
 #else
 __ALIGN_BEGIN static uint8_t scratch[BLOCKSIZE] __ALIGN_END;
 #endif
 #endif
-
 /* Disk status */
 static volatile DSTATUS Stat = STA_NOINIT;
 
@@ -88,10 +90,10 @@ DSTATUS SD_initialize (BYTE);
 DSTATUS SD_status (BYTE);
 DRESULT SD_read (BYTE, BYTE*, DWORD, UINT);
 #if _USE_WRITE == 1
-  DRESULT SD_write (BYTE, const BYTE*, DWORD, UINT);
+DRESULT SD_write (BYTE, const BYTE*, DWORD, UINT);
 #endif /* _USE_WRITE == 1 */
 #if _USE_IOCTL == 1
-  DRESULT SD_ioctl (BYTE, BYTE, void*);
+DRESULT SD_ioctl (BYTE, BYTE, void*);
 #endif  /* _USE_IOCTL == 1 */
 
 const Diskio_drvTypeDef  SD_Driver =
@@ -159,6 +161,7 @@ DSTATUS SD_initialize(BYTE lun)
 #else
   Stat = SD_CheckStatus(lun);
 #endif
+
   return Stat;
 }
 
@@ -188,7 +191,9 @@ DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
 {
   DRESULT res = RES_ERROR;
   uint32_t timeout;
+#if defined(ENABLE_SCRATCH_BUFFER)
   uint8_t ret;
+#endif
 #if (ENABLE_SD_DMA_CACHE_MAINTENANCE == 1)
   uint32_t alignedAddr;
 #endif
@@ -245,7 +250,9 @@ DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
       }
     }
 #if defined(ENABLE_SCRATCH_BUFFER)
-    else {
+  }
+    else
+    {
       /* Slow path, fetch each sector a part and memcpy to destination buffer */
       int i;
 
@@ -254,15 +261,16 @@ DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
         if (ret == MSD_OK) {
           /* wait until the read is successful or a timeout occurs */
 
-          ReadStatus = 0;
           timeout = HAL_GetTick();
           while((ReadStatus == 0) && ((HAL_GetTick() - timeout) < SD_TIMEOUT))
           {
           }
           if (ReadStatus == 0)
           {
+            res = RES_ERROR;
             break;
           }
+          ReadStatus = 0;
 
 #if (ENABLE_SD_DMA_CACHE_MAINTENANCE == 1)
           /*
@@ -284,7 +292,6 @@ DRESULT SD_read(BYTE lun, BYTE *buff, DWORD sector, UINT count)
         res = RES_OK;
     }
 #endif
-  }
 
   return res;
 }
@@ -306,8 +313,10 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
 {
   DRESULT res = RES_ERROR;
   uint32_t timeout;
+#if defined(ENABLE_SCRATCH_BUFFER)
   uint8_t ret;
   int i;
+#endif
 
    WriteStatus = 0;
 #if (ENABLE_SD_DMA_CACHE_MAINTENANCE == 1)   
@@ -363,6 +372,8 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
         }
       }
     }
+#if defined(ENABLE_SCRATCH_BUFFER)
+  }
     else
     {
       /* Slow path, fetch each sector a part and memcpy to destination buffer */
@@ -376,6 +387,10 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
       for (i = 0; i < count; i++)
       {
         WriteStatus = 0;
+
+        memcpy((void *)scratch, (void *)buff, BLOCKSIZE);
+        buff += BLOCKSIZE;
+
         ret = BSP_SD_WriteBlocks_DMA((uint32_t*)scratch, (uint32_t)sector++, 1);
         if (ret == MSD_OK) {
           /* wait for a message from the queue or a timeout */
@@ -388,8 +403,6 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
             break;
           }
 
-          memcpy((void *)buff, (void *)scratch, BLOCKSIZE);
-          buff += BLOCKSIZE;
         }
         else
         {
@@ -399,11 +412,10 @@ DRESULT SD_write(BYTE lun, const BYTE *buff, DWORD sector, UINT count)
       if ((i == count) && (ret == MSD_OK))
         res = RES_OK;
     }
-
-  }
+#endif
   return res;
 }
-#endif /* _USE_WRITE == 1 */  
+#endif /* _USE_WRITE == 1 */
 
 /* USER CODE BEGIN beforeIoctlSection */
 /* can be used to modify previous code / undefine following code / add new code */

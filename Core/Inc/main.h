@@ -68,8 +68,8 @@ void Error_Handler(void);
 #define KEY_ENTER_GPIO_Port GPIOE
 #define KEY_ESC_Pin GPIO_PIN_5
 #define KEY_ESC_GPIO_Port GPIOE
-#define SD_PRESENT_Pin GPIO_PIN_6
-#define SD_PRESENT_GPIO_Port GPIOE
+#define BUZZER_Pin GPIO_PIN_6
+#define BUZZER_GPIO_Port GPIOE
 #define LED1_Pin GPIO_PIN_0
 #define LED1_GPIO_Port GPIOC
 #define LED2_Pin GPIO_PIN_1
@@ -100,10 +100,10 @@ void Error_Handler(void);
 #define FLASH_MISO_GPIO_Port GPIOB
 #define FLASH_MOSI_Pin GPIO_PIN_5
 #define FLASH_MOSI_GPIO_Port GPIOB
-#define BUZZER_Pin GPIO_PIN_0
-#define BUZZER_GPIO_Port GPIOE
-#define TOUCH_IRQ_Pin GPIO_PIN_1
+#define TOUCH_IRQ_Pin GPIO_PIN_0
 #define TOUCH_IRQ_GPIO_Port GPIOE
+#define SD_PRESENT_Pin GPIO_PIN_1
+#define SD_PRESENT_GPIO_Port GPIOE
 /* USER CODE BEGIN Private defines */
 #define	DEBOUNCE_BTN	5
 /* USER CODE END Private defines */

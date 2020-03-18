@@ -497,30 +497,30 @@ HAL_StatusTypeDef HAL_SD_DeInit(SD_HandleTypeDef *hsd)
   * @param  hsd: Pointer to SD handle
   * @retval None
   */
-//void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
-//{
-//  /* Prevent unused argument(s) compilation warning */
-//  UNUSED(hsd);
-//
-//  /* NOTE : This function should not be modified, when the callback is needed,
-//            the HAL_SD_MspInit could be implemented in the user file
-//   */
-//}
+__weak void HAL_SD_MspInit(SD_HandleTypeDef *hsd)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsd);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_SD_MspInit could be implemented in the user file
+   */
+}
 
 /**
   * @brief  De-Initialize SD MSP.
   * @param  hsd: Pointer to SD handle
   * @retval None
   */
-//void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
-//{
-//  /* Prevent unused argument(s) compilation warning */
-//  UNUSED(hsd);
-//
-//  /* NOTE : This function should not be modified, when the callback is needed,
-//            the HAL_SD_MspDeInit could be implemented in the user file
-//   */
-//}
+__weak void HAL_SD_MspDeInit(SD_HandleTypeDef *hsd)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsd);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_SD_MspDeInit could be implemented in the user file
+   */
+}
 
 /**
   * @}
@@ -1790,37 +1790,37 @@ uint32_t HAL_SD_GetError(SD_HandleTypeDef *hsd)
   * @param hsd: Pointer to SD handle
   * @retval None
   */
-//void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
-//{
-//  /* Prevent unused argument(s) compilation warning */
-//  UNUSED(hsd);
-//
-//  /* NOTE : This function should not be modified, when the callback is needed,
-//            the HAL_SD_TxCpltCallback can be implemented in the user file
-//   */
-//}
+__weak void HAL_SD_TxCpltCallback(SD_HandleTypeDef *hsd)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsd);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_SD_TxCpltCallback can be implemented in the user file
+   */
+}
 
 /**
   * @brief Rx Transfer completed callbacks
   * @param hsd: Pointer SD handle
   * @retval None
   */
-//void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
-//{
-//  /* Prevent unused argument(s) compilation warning */
-//  UNUSED(hsd);
-//
-//  /* NOTE : This function should not be modified, when the callback is needed,
-//            the HAL_SD_RxCpltCallback can be implemented in the user file
-//   */
-//}
+__weak void HAL_SD_RxCpltCallback(SD_HandleTypeDef *hsd)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsd);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_SD_RxCpltCallback can be implemented in the user file
+   */
+}
 
 /**
   * @brief SD error callbacks
   * @param hsd: Pointer SD handle
   * @retval None
   */
-void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
+__weak void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
 {
   /* Prevent unused argument(s) compilation warning */
   UNUSED(hsd);
@@ -1835,15 +1835,15 @@ void HAL_SD_ErrorCallback(SD_HandleTypeDef *hsd)
   * @param hsd: Pointer SD handle
   * @retval None
   */
-//void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
-//{
-//  /* Prevent unused argument(s) compilation warning */
-//  UNUSED(hsd);
-//
-//  /* NOTE : This function should not be modified, when the callback is needed,
-//            the HAL_SD_AbortCallback can be implemented in the user file
-//   */
-//}
+__weak void HAL_SD_AbortCallback(SD_HandleTypeDef *hsd)
+{
+  /* Prevent unused argument(s) compilation warning */
+  UNUSED(hsd);
+
+  /* NOTE : This function should not be modified, when the callback is needed,
+            the HAL_SD_AbortCallback can be implemented in the user file
+   */
+}
 
 #if defined (USE_HAL_SD_REGISTER_CALLBACKS) && (USE_HAL_SD_REGISTER_CALLBACKS == 1U)
 /**

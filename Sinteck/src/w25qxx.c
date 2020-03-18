@@ -24,6 +24,8 @@ w25qxx_t	w25qxx;
 #define	W25qxx_Delay(delay)		HAL_Delay(delay)
 #endif
 
+volatile uint8_t spi_complete = 0;
+
 //###################################################################################################################
 uint8_t	W25qxx_Spi(uint8_t	Data)
 {
@@ -833,9 +835,13 @@ void W25qxx_ReadBytes(uint8_t* pBuffer, uint32_t ReadAddr, uint32_t NumByteToRea
 	W25qxx_Spi(0);
 
 #if (_W25QXX_IRQ==1)
+	spi_complete = 0;
 	HAL_SPI_Receive_DMA(&_W25QXX_SPI, pBuffer, NumByteToRead);
-	while (HAL_SPI_GetState(&_W25QXX_SPI) != HAL_SPI_STATE_READY)
-	{
+//	while (HAL_SPI_GetState(&_W25QXX_SPI) != HAL_SPI_STATE_READY)
+//	{
+//	}
+	while( spi_complete == 0) {
+
 	}
 #else
 	HAL_SPI_Receive(&_W25QXX_SPI,pBuffer,NumByteToRead,2000);
@@ -1033,6 +1039,11 @@ void teste_spi_flash(void)
 	W25qxx_WriteByte(0x0D, 13);
 	W25qxx_WriteByte(0x0E, 14);
 	W25qxx_WriteByte(0x0F, 15);
+}
+
+void HAL_SPI_RxCpltCallback(SPI_HandleTypeDef *hspi)
+{
+	spi_complete = 1;
 }
 
 //###################################################################################################################
