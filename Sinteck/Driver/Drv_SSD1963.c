@@ -79,8 +79,8 @@ void drv_ssd1963_init(void)
     drv_ssd1963_cmd(0x00E6);    //PLL setting for PCLK, depends on resolution
 
     drv_ssd1963_data(0x0001);  //HX8257C
-    drv_ssd1963_data(0x0047);  //HX8257C
-    drv_ssd1963_data(0x00B1);  //HX8257C
+    drv_ssd1963_data(0x0033);  //HX8257C
+    drv_ssd1963_data(0x0033);  //HX8257C
 
 
     drv_ssd1963_cmd(0x00B0);    //LCD SPECIFICATION
@@ -112,20 +112,20 @@ void drv_ssd1963_init(void)
     drv_ssd1963_data(SSD1963_FPS & 0X00FF);
 
     drv_ssd1963_cmd(0x00B8);
-    drv_ssd1963_data(0x0007);    //GPIO is controlled by host GPIO[3:0]=output   GPIO[0]=1  LCD ON  GPIO[0]=1  LCD OFF
+    drv_ssd1963_data(0x000f);    //GPIO is controlled by host GPIO[3:0]=output   GPIO[0]=1  LCD ON  GPIO[0]=1  LCD OFF
     drv_ssd1963_data(0x0001);    //GPIO0 normal
 
     drv_ssd1963_cmd(0x00BA);
-    drv_ssd1963_data(0x000F);    //GPIO[0] out 1 --- LCD display on/off control PIN
+    drv_ssd1963_data(0x0001);    //GPIO[0] out 1 --- LCD display on/off control PIN
 
     drv_ssd1963_cmd(0x0036);    //rotation
-    drv_ssd1963_data(0x0010);   //RGB=BGR
+    drv_ssd1963_data(0x0008);   //RGB=BGR
 
     drv_ssd1963_cmd(0x003A);    //Set the current pixel format for RGB image data
     drv_ssd1963_data(0x0050);   //16-bit/pixel
 
     drv_ssd1963_cmd(0x00F0);    //Pixel Data Interface Format
-    drv_ssd1963_data(0x0000);   //16-bit(565 format) data
+    drv_ssd1963_data(0x0003);   //16-bit(565 format) data
 
     drv_ssd1963_cmd(0x00BC);
     drv_ssd1963_data(0x0040);   //contrast value
