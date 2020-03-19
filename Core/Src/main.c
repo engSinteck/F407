@@ -191,20 +191,19 @@ int main(void)
   // Mount SD-CARD
   Mount_FATFS();
 
-//tst:
+tst:
 //
 //  //HAL_GPIO_TogglePin(TFT_RST_GPIO_Port, TFT_RST_Pin);
 //
 //  //HAL_Delay(1);
 //
-//*(__IO uint8_t *)(BANK1_LCD_C) = 0x55;
-//*(__IO uint8_t *)(BANK1_LCD_D) = 0xAA;
+*(__IO uint16_t *)(BANK1_LCD_C) = 0x55AA;
+*(__IO uint16_t *)(BANK1_LCD_D) = 0xAA55;
 //
 //  //drv_ssd1963_cmd(0x55);
 //  //drv_ssd1963_data(0xAA);
-//
-//  goto tst;
-//
+
+  goto tst;
 
   // Init SSD1963
   drv_ssd1963_init();
