@@ -138,8 +138,8 @@ void drv_ssd1963_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
 void drv_ssd1963_fill(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
 void drv_ssd1963_map(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_t * color_p);
 void drv_ssd1963_SetBacklight(uint8_t intensity);
-void drv_ssd1963_data(uint16_t data);
-void drv_ssd1963_cmd(uint16_t cmd);
+void drv_ssd1963_data(uint8_t data);
+void drv_ssd1963_cmd(uint8_t cmd);
 
 /**********************
  *      MACROS

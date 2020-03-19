@@ -79,8 +79,8 @@ void drv_ssd1963_init(void)
     drv_ssd1963_cmd(0x00E6);    //PLL setting for PCLK, depends on resolution
 
     drv_ssd1963_data(0x0001);  //HX8257C
-    drv_ssd1963_data(0x0033);  //HX8257C
-    drv_ssd1963_data(0x0033);  //HX8257C
+    drv_ssd1963_data(0x0047);  //HX8257C
+    drv_ssd1963_data(0x00B1);  //HX8257C
 
 
     drv_ssd1963_cmd(0x00B0);    //LCD SPECIFICATION
@@ -112,20 +112,20 @@ void drv_ssd1963_init(void)
     drv_ssd1963_data(SSD1963_FPS & 0X00FF);
 
     drv_ssd1963_cmd(0x00B8);
-    drv_ssd1963_data(0x000f);    //GPIO is controlled by host GPIO[3:0]=output   GPIO[0]=1  LCD ON  GPIO[0]=1  LCD OFF
+    drv_ssd1963_data(0x0007);    //GPIO is controlled by host GPIO[3:0]=output   GPIO[0]=1  LCD ON  GPIO[0]=1  LCD OFF
     drv_ssd1963_data(0x0001);    //GPIO0 normal
 
     drv_ssd1963_cmd(0x00BA);
-    drv_ssd1963_data(0x0001);    //GPIO[0] out 1 --- LCD display on/off control PIN
+    drv_ssd1963_data(0x000F);    //GPIO[0] out 1 --- LCD display on/off control PIN
 
     drv_ssd1963_cmd(0x0036);    //rotation
-    drv_ssd1963_data(0x0008);   //RGB=BGR
+    drv_ssd1963_data(0x0010);   //RGB=BGR
 
     drv_ssd1963_cmd(0x003A);    //Set the current pixel format for RGB image data
     drv_ssd1963_data(0x0050);   //16-bit/pixel
 
     drv_ssd1963_cmd(0x00F0);    //Pixel Data Interface Format
-    drv_ssd1963_data(0x0003);   //16-bit(565 format) data
+    drv_ssd1963_data(0x0000);   //16-bit(565 format) data
 
     drv_ssd1963_cmd(0x00BC);
     drv_ssd1963_data(0x0040);   //contrast value
@@ -141,18 +141,20 @@ void drv_ssd1963_init(void)
     drv_ssd1963_data((SSD1963_HOR_RES - 1) >> 8);		//SET end page address
     drv_ssd1963_data((SSD1963_HOR_RES - 1) & 0xFF);
 
-    drv_ssd1963_cmd(0x2b);				//SET column address
+    drv_ssd1963_cmd(0x2b);			//SET column address
     drv_ssd1963_data(0x00);				//SET start column address
     drv_ssd1963_data(0x00);
     drv_ssd1963_data((SSD1963_VER_RES - 1) >> 8);		//SET end column address
     drv_ssd1963_data((SSD1963_VER_RES - 1) & 0xFF);
 
     drv_ssd1963_cmd(0x2c);
-    for (int16_t x=0; x < SSD1963_HOR_RES; x++)
+    for (uint16_t x=0; x < SSD1963_HOR_RES; x++)
     {
-      for (int16_t y= 0; y < SSD1963_VER_RES; y++)
+      for (uint16_t y= 0; y < SSD1963_VER_RES; y++)
       {
-    	  drv_ssd1963_data(0x000000); 		// color is red
+    	  drv_ssd1963_data((0x000000)>>16); 		// color is red
+    	  drv_ssd1963_data((0x000000)>>8);  		// color is green
+    	  drv_ssd1963_data(0x000000);  		 		// color is blue
       }
     }
 
@@ -207,10 +209,12 @@ void drv_ssd1963_flush(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_colo
     drv_ssd1963_data_mode();
 
 #if LV_COLOR_DEPTH == 16
-    int32_t full_w = area->x2 - area->x1 + 1;
+//    int32_t full_w = area->x2 - area->x1 + 1;
     for(int32_t i = act_y1; i <= act_y2; i++) {
-        LV_DRV_DISP_PAR_WR_ARRAY((uint16_t *)color_p, act_w);
-        color_p += full_w;
+        //LV_DRV_DISP_PAR_WR_ARRAY((uint16_t *)color_p, act_w);
+    	drv_ssd1963_data(color_p->full);
+    	//color_p += full_w;
+    	color_p++;
     }
     LV_DRV_DISP_PAR_CS(1);
 #else
@@ -311,6 +315,8 @@ void drv_ssd1963_map(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
     LV_DRV_DISP_PAR_CS(1);
 #else
     int32_t j;
+    int32_t i;
+    int32_t full_w = area->x2 - area->x1 + 1;
     for(i = act_y1; i <= act_y2; i++) {
         for(j = 0; j <= act_x2 - act_x1 + 1; j++) {
             LV_DRV_DISP_PAR_WR_WORD(color_p[j]);
@@ -378,18 +384,18 @@ static inline void drv_ssd1963_data_mode(void)
  * Write command
  * @param cmd the command
  */
-void drv_ssd1963_cmd(uint16_t cmd)
+void drv_ssd1963_cmd(uint8_t cmd)
 {
-	*(__IO uint16_t *)(TFT_CMD) = cmd;
+	*(__IO uint8_t *)(TFT_CMD) = cmd;
 }
 
 /**
  * Write data
  * @param data the data
  */
-void drv_ssd1963_data(uint16_t data)
+void drv_ssd1963_data(uint8_t data)
 {
-	*(__IO uint16_t *)(TFT_DATA) = data;
+	*(__IO uint8_t *)(TFT_DATA) = data;
 }
 
 void drv_ssd1963_SetBacklight(uint8_t intensity)
