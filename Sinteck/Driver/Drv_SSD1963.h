@@ -143,6 +143,7 @@ void drv_ssd1963_map(lv_disp_drv_t * disp_drv, const lv_area_t * area, lv_color_
 void drv_ssd1963_SetBacklight(uint8_t intensity);
 void drv_ssd1963_data(uint16_t data);
 void drv_ssd1963_cmd(uint16_t cmd);
+void my_monitor_cb(lv_disp_drv_t * disp_drv, uint32_t time, uint32_t px);
 //
 void gpu_blend(lv_disp_drv_t * disp_drv, lv_color_t * dest, const lv_color_t * src, uint32_t length, lv_opa_t opa);
 void gpu_fill(lv_disp_drv_t * disp_drv, lv_color_t * dest_buf, lv_coord_t dest_width, const lv_area_t * fill_area, lv_color_t color);

@@ -163,13 +163,13 @@ int main(void)
    logI(" W25Q128FV SPI Test End. ( Sector = 512 ) Duracao: %ld\r\n", duracao);
    logI("\r\n\r\n");
 
-   logI(" W25Q128FV SPI Test Start\n\r");
+//   logI(" W25Q128FV SPI Test Start\n\r");
 
-   duracao = HAL_GetTick();
-   W25qxx_ReadBytes(rData, 0, 4096);
-   duracao = HAL_GetTick() - duracao;
+ //  duracao = HAL_GetTick();
+ //  W25qxx_ReadBytes(rData, 0, 4096);
+//   duracao = HAL_GetTick() - duracao;
 
-   logI(" W25Q128FV SPI Test End. ( Sector = 4096 ) Duracao: %ld\r\n", duracao);
+//   logI(" W25Q128FV SPI Test End. ( Sector = 4096 ) Duracao: %ld\r\n", duracao);
    logI("\r\n\r\n");
 
 //tst:

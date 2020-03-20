@@ -47,8 +47,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 static lv_disp_buf_t disp_buf;
-static lv_color_t buf[LV_HOR_RES_MAX * 10];		// Declare a buffer for 10 lines
-static lv_color_t buf2[LV_HOR_RES_MAX * 10];	// Declare a buffer for 10 lines
+static lv_color_t buf[LV_HOR_RES_MAX * 20];		// Declare a buffer for 10 lines
+//static lv_color_t buf2[LV_HOR_RES_MAX * 10];	// Declare a buffer for 10 lines
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -66,7 +66,7 @@ uint32_t totalSpace, freeSpace;
 uint32_t size;
 unsigned int ByteRead;
 
-uint8_t rData[4096];
+uint8_t rData[2048];
 
 uint32_t Btn_K1_0 = 0;
 uint32_t Btn_K1_1 = 0;
@@ -204,7 +204,7 @@ void StartTaskGUI(void *argument)
 	  drv_ssd1963_init();
 	  drv_ssd1963_SetBacklight(200);
 
-	  lv_disp_buf_init(&disp_buf, buf, buf2, LV_HOR_RES_MAX * 10);    // Initialize the display buffer
+	  lv_disp_buf_init(&disp_buf, buf, NULL, LV_HOR_RES_MAX * 20);    // Initialize the display buffer
 	  lv_init();
 
 	   // Lvgl File System
@@ -218,6 +218,7 @@ void StartTaskGUI(void *argument)
 	   disp_drv.ver_res = 480;               	// Set the vertical resolution
 	   disp_drv.flush_cb = drv_ssd1963_flush;	// Set your driver function
 	   disp_drv.buffer = &disp_buf;          	// Assign the buffer to teh display
+	   disp_drv.monitor_cb = my_monitor_cb;
 	   lv_disp_drv_register(&disp_drv);      	// Finally register the driver
 
 	   //Initialize the touch pad
