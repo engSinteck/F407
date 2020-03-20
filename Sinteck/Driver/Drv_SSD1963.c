@@ -25,8 +25,12 @@
 /**********************
  *      TYPEDEFS
  **********************/
-#define TFT_CMD              ((uint32_t)0x60000000) /* RS = 0 */
-#define TFT_DATA             ((uint32_t)0x60010000) /* RS = 1 */
+#define TFT_CMD              ((uint32_t)0x60000000) 	// RS = 0
+#if LV_COLOR_DEPTH == 16
+#define TFT_DATA			 ((uint32_t)0x60020000)		// RS = 1 in 16Bits
+#else
+#define TFT_DATA             ((uint32_t)0x60010000) 	// RS = 1
+#endif
 
 /**********************
  *  STATIC PROTOTYPES
@@ -345,7 +349,6 @@ void gpu_blend(lv_disp_drv_t * disp_drv, lv_color_t * dest, const lv_color_t * s
 
 }
 
-
 void gpu_fill(lv_disp_drv_t * disp_drv, lv_color_t * dest_buf, lv_coord_t dest_width,
                     const lv_area_t * fill_area, lv_color_t color)
 {
@@ -412,10 +415,11 @@ static inline void drv_ssd1963_data_mode(void)
 void drv_ssd1963_cmd(uint16_t cmd)
 {
 #if LV_COLOR_DEPTH == 16
-	*(__IO uint8_t *)(TFT_CMD) = cmd;
+	*(__IO uint16_t *)(TFT_CMD) = cmd;
 #else
-	*(__IO uint8_t *)(TFT_CMD) = cmd;
+	*(__IO uint8_t *)(TFT_CMD) = cmd & 0x00FF;
 #endif
+
 }
 
 /**
@@ -425,28 +429,28 @@ void drv_ssd1963_cmd(uint16_t cmd)
 void drv_ssd1963_data(uint16_t data)
 {
 #if LV_COLOR_DEPTH == 16
-	*(__IO uint8_t *)(TFT_DATA) = data;
+	*(__IO uint16_t *)(TFT_DATA) = data;
 #else
-	*(__IO uint8_t *)(TFT_DATA) = data;
+	*(__IO uint8_t *)(TFT_DATA) = data & 0x00FF;
 #endif
 }
 
 void drv_ssd1963_SetBacklight(uint8_t intensity)
 {
 	drv_ssd1963_cmd(0xBE);			// Set PWM configuration for backlight control
-	drv_ssd1963_data(0x06);			// PWMF[7:0] = 2, PWM base freq = PLL/(256*(1+5))/256 =
+	drv_ssd1963_data(0x0006);		// PWMF[7:0] = 2, PWM base freq = PLL/(256*(1+5))/256 =
 									// 300Hz for a PLL freq = 120MHz
 	drv_ssd1963_data(intensity);	// Set duty cycle, from 0x00 (total pull-down) to 0xFF
 									// (99% pull-up , 255/256)
-	drv_ssd1963_data(0x01);			// PWM enabled and controlled by host (mcu)
-	drv_ssd1963_data(0x00);
-	drv_ssd1963_data(0x00);
-	drv_ssd1963_data(0x00);
+	drv_ssd1963_data(0x0001);		// PWM enabled and controlled by host (mcu)
+	drv_ssd1963_data(0x0000);
+	drv_ssd1963_data(0x0000);
+	drv_ssd1963_data(0x0000);
 }
 
 void my_monitor_cb(lv_disp_drv_t * disp_drv, uint32_t time, uint32_t px)
 {
-	logI("Debug: %d px refreshed in %d ms\n", px, time);
+//	logI("Debug: %d px refreshed in %d ms\n", px, time);
 }
 
 #endif

@@ -57,7 +57,8 @@
 /* Private typedef -----------------------------------------------------------*/
 /* USER CODE BEGIN PTD */
 #define BANK1_LCD_C    ((uint32_t)0x60000000)    // Disp Reg  ADDR
-#define BANK1_LCD_D    ((uint32_t)0x60010000)    // Disp Data ADDR
+#define BANK1_LCD_D_8  ((uint32_t)0x60010000)    // Disp Data ADDR 8Bits
+#define BANK1_LCD_D_16 ((uint32_t)0x60010000)    // Disp Data ADDR 16Bits
 /* USER CODE END PTD */
 
 /* Private define ------------------------------------------------------------*/
@@ -191,19 +192,20 @@ int main(void)
   // Mount SD-CARD
   Mount_FATFS();
 
-tst:
+//tst:
 //
 //  //HAL_GPIO_TogglePin(TFT_RST_GPIO_Port, TFT_RST_Pin);
 //
 //  //HAL_Delay(1);
 //
-*(__IO uint16_t *)(BANK1_LCD_C) = 0x55AA;
-*(__IO uint16_t *)(BANK1_LCD_D) = 0xAA55;
+//*(__IO uint8_t *)(BANK1_LCD_C) = 0x55;
+//*(__IO uint8_t *)(BANK1_LCD_D_8) = 0xAA;
 //
-//  //drv_ssd1963_cmd(0x55);
-//  //drv_ssd1963_data(0xAA);
-
-  goto tst;
+//*(__IO uint8_t *)(BANK1_LCD_C) = 0x55;
+//*(__IO uint16_t *)(BANK1_LCD_D_16) = 0xAA55;
+//
+//
+//  goto tst;
 
   // Init SSD1963
   drv_ssd1963_init();
