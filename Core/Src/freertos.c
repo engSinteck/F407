@@ -82,8 +82,8 @@ extern uint16_t adcBuffer[4]; // Buffer for store the results of the ADC convers
 
 /* Private macro -------------------------------------------------------------*/
 /* USER CODE BEGIN PM */
-void Mount_FATFS(void);
 uint32_t read_btn_user(void);
+void Mount_FATFS(void);
 /* USER CODE END PM */
 
 /* Private variables ---------------------------------------------------------*/
@@ -101,7 +101,7 @@ const osThreadAttr_t defaultTask_attributes = {
 osThreadId_t TaskGUIHandle;
 const osThreadAttr_t TaskGUI_attributes = {
   .name = "TaskGUI",
-  .priority = (osPriority_t) osPriorityNormal1,
+  .priority = (osPriority_t) osPriorityNormal,
   .stack_size = 6000 * 4
 };
 
@@ -167,26 +167,6 @@ void StartDefaultTask(void *argument)
   /* init code for USB_DEVICE */
   MX_USB_DEVICE_Init();
   /* USER CODE BEGIN StartDefaultTask */
-  // Teste Velocidade Leitura Flash SPI
-  logI("\r\n\r\n");
-  logI(" W25Q128FV SPI Test Start\n\r");
-
-  duracao = HAL_GetTick();
-  W25qxx_ReadBytes(rData, 0, 512);
-  duracao = HAL_GetTick() - duracao;
-
-  logI(" W25Q128FV SPI Test End. ( Sector = 512 ) Duracao: %ld\r\n", duracao);
-  logI("\r\n\r\n");
-
-  logI(" W25Q128FV SPI Test Start\n\r");
-
-  duracao = HAL_GetTick();
-  W25qxx_ReadBytes(rData, 0, 4096);
-  duracao = HAL_GetTick() - duracao;
-
-  logI(" W25Q128FV SPI Test End. ( Sector = 4096 ) Duracao: %ld\r\n", duracao);
-  logI("\r\n\r\n");
-
   // Mount SD-CARD
   Mount_FATFS();
 
@@ -194,22 +174,18 @@ void StartDefaultTask(void *argument)
   for(;;)
   {
 	  // Pisca Led 100ms
-	  if(HAL_GetTick() - timer_led > 100) {
-		  timer_led = HAL_GetTick();
-		  HAL_GPIO_TogglePin(GPIOA, LED_Pin);
-	  }
+	  HAL_GPIO_TogglePin(GPIOA, LED_Pin);
+
 	  // Test Button K1
 	  if(!read_btn_user()) {
 		  CDC_Transmit_FS((uint8_t*)"E - Print\n", 14);
 	  }
 
 	  // Transmite ADC Value
-	  if(HAL_GetTick() - timer_adc > 500) {
-		  timer_adc = HAL_GetTick();
-		  logI("ADC1: %ld, ADC2: %ld, ADC3: %ld, ADC4: %ld\n",
+	   logI("ADC1: %ld, ADC2: %ld, ADC3: %ld, ADC4: %ld\n",
 				  adcBuffer[0], adcBuffer[1], adcBuffer[2], adcBuffer[3]);
-	  }
-    osDelay(100);
+
+	   osDelay(100);
   }
   /* USER CODE END StartDefaultTask */
 }

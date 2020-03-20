@@ -80,13 +80,24 @@
 void SystemClock_Config(void);
 void MX_FREERTOS_Init(void);
 /* USER CODE BEGIN PFP */
-
 /* USER CODE END PFP */
 
 /* Private user code ---------------------------------------------------------*/
 /* USER CODE BEGIN 0 */
 uint32_t timer_key = 0;
 uint16_t adcBuffer[4]; // Buffer for store the results of the ADC conversion
+
+extern uint32_t duracao;
+extern uint8_t rData[];
+
+extern FATFS *pfs;
+extern char line[]; /* Line buffer */
+extern FRESULT fr;     /* FatFs return code */
+extern DWORD fre_clust;
+extern uint32_t totalSpace, freeSpace;
+extern uint32_t size;
+extern unsigned int ByteRead;
+extern uint32_t timer_sd;
 
 /* USER CODE END 0 */
 
@@ -141,6 +152,25 @@ int main(void)
   // Init Flash SPI
   W25qxx_Init();
   BSP_SD_Init();
+
+   logI("\r\n\r\n");
+   logI(" W25Q128FV SPI Test Start\n\r");
+
+   duracao = HAL_GetTick();
+   W25qxx_ReadBytes(rData, 0, 512);
+   duracao = HAL_GetTick() - duracao;
+
+   logI(" W25Q128FV SPI Test End. ( Sector = 512 ) Duracao: %ld\r\n", duracao);
+   logI("\r\n\r\n");
+
+   logI(" W25Q128FV SPI Test Start\n\r");
+
+   duracao = HAL_GetTick();
+   W25qxx_ReadBytes(rData, 0, 4096);
+   duracao = HAL_GetTick() - duracao;
+
+   logI(" W25Q128FV SPI Test End. ( Sector = 4096 ) Duracao: %ld\r\n", duracao);
+   logI("\r\n\r\n");
 
 //tst:
 //
@@ -228,6 +258,7 @@ void SystemClock_Config(void)
 }
 
 /* USER CODE BEGIN 4 */
+
 /* USER CODE END 4 */
 
  /**
