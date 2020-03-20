@@ -2,7 +2,8 @@
  * Screen_Main.c
  *
  *  Created on: 3 de mar de 2020
- *      Author: rinal
+ *      Author: Rinaldo Dos Santos
+ *      Sinteck Next
  */
 #include "main.h"
 #include "usbd_cdc_if.h"
@@ -42,7 +43,7 @@ void GUI_PowerSupply(void)
 	create_switch();
 
 	// Task Update Main Screen
-	Task_Principal = lv_task_create(update_main_screen, 125, LV_TASK_PRIO_MID, NULL);
+	Task_Principal = lv_task_create(update_main_screen, 250, LV_TASK_PRIO_MID, NULL);
 
 	lv_scr_load(Tela_Principal);
 	TelaAtiva = TelaPrincipal;
