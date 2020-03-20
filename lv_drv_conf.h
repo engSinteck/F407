@@ -65,7 +65,7 @@
  *  SPI
  *---------*/
 #define LV_DRV_INDEV_SPI_CS(val)            HAL_GPIO_WritePin(GPIOB, TFT_CS_Pin, val);     /*Set the SPI's Chip select to 'val'*/
-#define LV_DRV_INDEV_SPI_XCHG_BYTE(data)    0;/*spi_xchg(val)*/     /*Write 'val' to SPI and give the read value*/
+#define LV_DRV_INDEV_SPI_XCHG_BYTE(data)    0/*spi_xchg(val)*/     /*Write 'val' to SPI and give the read value*/
 
 /*---------
  *  I2C

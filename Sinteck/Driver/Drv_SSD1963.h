@@ -19,7 +19,7 @@ extern "C" {
 #include "../../lv_drv_conf.h"
 #endif
 
-#if 1
+#if USE_SSD1963
 
 #include <stdint.h>
 #include "main.h"
